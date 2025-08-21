@@ -1,0 +1,72 @@
+{
+  "modules": [
+    {
+      "module": "ada_brandforms_v6",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_brandforms_v6.py",
+      "provides": [
+        "alert",
+        "ask_yes_no",
+        "big_button_box",
+        "input_box",
+        "select_from_list"
+      ],
+      "alert_supports_buttons": true,
+      "version_hint": "6"
+    },
+    {
+      "module": "ada_brandforms_v5",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_brandforms_v5.py",
+      "provides": [
+        "alert",
+        "ask_yes_no"
+      ],
+      "alert_supports_buttons": true,
+      "version_hint": "5"
+    },
+    {
+      "module": "ada_brandforms_v4_2",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_brandforms_v4_2.py",
+      "provides": [],
+      "alert_supports_buttons": false,
+      "version_hint": "4_2"
+    },
+    {
+      "module": "ada_brandforms_v4",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_brandforms_v4.py",
+      "provides": [],
+      "alert_supports_buttons": false,
+      "version_hint": "4"
+    },
+    {
+      "module": "ada_brandforms_v3",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_brandforms_v3.py",
+      "provides": [],
+      "alert_supports_buttons": false,
+      "version_hint": "3"
+    },
+    {
+      "module": "ada_bootstrap",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_bootstrap.py",
+      "provides": [],
+      "alert_supports_buttons": false,
+      "version_hint": ""
+    },
+    {
+      "module": "gp_ui_shims",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\gp_ui_shims.py",
+      "provides": [],
+      "alert_supports_buttons": false,
+      "version_hint": ""
+    }
+  ],
+  "preferred_order": [
+    "ada_brandforms_v6",
+    "ada_brandforms_v5",
+    "ada_brandforms_v4_2",
+    "ada_brandforms_v4",
+    "ada_brandforms_v3",
+    "ada_bootstrap",
+    "gp_ui_shims"
+  ],
+  "example_import_snippet": "def themed_alert(msg, title='Message', buttons=None):\n    mods = ['ada_brandforms_v6', 'ada_brandforms_v5', 'ada_brandforms_v4_2', 'ada_brandforms_v4', 'ada_brandforms_v3', 'ada_bootstrap', 'gp_ui_shims']\n    for mn in mods:\n        try:\n            m = __import__(mn, fromlist=['alert'])\n            fn = getattr(m, 'alert', None)\n            if fn:\n                if buttons is None:\n                    return fn(str(msg), title=str(title))\n                try:  return fn(str(msg), title=str(title), buttons=list(buttons))\n                except TypeError:\n                    if buttons and set(buttons)==set(['Yes','No']) and hasattr(m,'confirm'):\n                        return 'Yes' if m.confirm(str(msg), title=str(title)) else 'No'\n                return fn(str(msg), title=str(title))\n        except Exception:  continue\n    try:\n        from pyrevit import forms\n        if buttons and set(buttons)==set(['Yes','No']):\n            return 'Yes' if forms.alert(str(msg), title=str(title), yes=True, no=True) else 'No'\n        return forms.alert(str(msg), title=str(title))\n    except Exception:\n        print('[ALERT]', title, msg); return None"
+}

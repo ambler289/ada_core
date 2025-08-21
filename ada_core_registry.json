@@ -1,0 +1,1630 @@
+{
+  "modules": [
+    {
+      "module": "__init__",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\__init__.py",
+      "functions": [],
+      "tags": [
+        "collect",
+        "selection",
+        "units",
+        "views"
+      ],
+      "deps": [
+        "ada_core"
+      ]
+    },
+    {
+      "module": "collect",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\collect.py",
+      "functions": [
+        {
+          "name": "_is_new_construction",
+          "public": false,
+          "signature": "_is_new_construction(elem)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "elem"
+          ]
+        },
+        {
+          "name": "windows_new_construction",
+          "public": true,
+          "signature": "windows_new_construction(doc, predicate)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "predicate"
+          ]
+        },
+        {
+          "name": "windows_in_view",
+          "public": true,
+          "signature": "windows_in_view(doc, view, predicate)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "view",
+            "predicate"
+          ]
+        },
+        {
+          "name": "instances_of",
+          "public": true,
+          "signature": "instances_of(doc, bic)",
+          "summary": "Generic instance collector by BuiltInCategory.",
+          "safe": false,
+          "args": [
+            "doc",
+            "bic"
+          ]
+        },
+        {
+          "name": "types_of",
+          "public": true,
+          "signature": "types_of(doc, bic)",
+          "summary": "Generic type collector by BuiltInCategory.",
+          "safe": false,
+          "args": [
+            "doc",
+            "bic"
+          ]
+        },
+        {
+          "name": "collect_by_scope_safe",
+          "public": true,
+          "signature": "collect_by_scope_safe(doc, view, bic, scope_label, predicate)",
+          "summary": "Return (elements, scope_str) filtered by category and optional predicate.",
+          "safe": true,
+          "args": [
+            "doc",
+            "view",
+            "bic",
+            "scope_label",
+            "predicate"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "params",
+        "selection",
+        "ui",
+        "views"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "config",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\config.py",
+      "functions": [
+        {
+          "name": "load_json",
+          "public": true,
+          "signature": "load_json(path, default)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "path",
+            "default"
+          ]
+        },
+        {
+          "name": "save_json",
+          "public": true,
+          "signature": "save_json(path, data)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "path",
+            "data"
+          ]
+        }
+      ],
+      "tags": [],
+      "deps": [
+        "ada_core"
+      ]
+    },
+    {
+      "module": "datums",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\datums.py",
+      "functions": [
+        {
+          "name": "_scope_param",
+          "public": false,
+          "signature": "_scope_param(view)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "view"
+          ]
+        },
+        {
+          "name": "_curve_in_view",
+          "public": false,
+          "signature": "_curve_in_view(lvl, view)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "lvl",
+            "view"
+          ]
+        },
+        {
+          "name": "force_hide_level_bubbles",
+          "public": true,
+          "signature": "force_hide_level_bubbles(doc, view, pad_ft)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "view",
+            "pad_ft"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "params",
+        "views"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "deps",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\deps.py",
+      "functions": [
+        {
+          "name": "ensure_paths",
+          "public": true,
+          "signature": "ensure_paths(paths)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "paths"
+          ]
+        },
+        {
+          "name": "optional_import",
+          "public": true,
+          "signature": "optional_import(name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "name"
+          ]
+        },
+        {
+          "name": "has",
+          "public": true,
+          "signature": "has(name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "name"
+          ]
+        }
+      ],
+      "tags": [],
+      "deps": [
+        "ada_core"
+      ]
+    },
+    {
+      "module": "doors",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\doors.py",
+      "functions": [
+        {
+          "name": "get_panel_width_mm",
+          "public": true,
+          "signature": "get_panel_width_mm(door_type)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "door_type"
+          ]
+        },
+        {
+          "name": "set_panel_height_ft",
+          "public": true,
+          "signature": "set_panel_height_ft(door_type, height_ft)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "door_type",
+            "height_ft"
+          ]
+        }
+      ],
+      "tags": [
+        "params",
+        "units"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "elements",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\elements.py",
+      "functions": [
+        {
+          "name": "get_level_for_elem",
+          "public": true,
+          "signature": "get_level_for_elem(doc, elem)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "elem"
+          ]
+        },
+        {
+          "name": "is_existing_phase",
+          "public": true,
+          "signature": "is_existing_phase(elem)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "elem"
+          ]
+        },
+        {
+          "name": "prefix_mark_dx",
+          "public": true,
+          "signature": "prefix_mark_dx(elem)",
+          "summary": "Prefix string param 'Mark' with Dx (preserving common prefixes).",
+          "safe": false,
+          "args": [
+            "elem"
+          ]
+        }
+      ],
+      "tags": [
+        "params",
+        "units"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "errors",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\errors.py",
+      "functions": [
+        {
+          "name": "swallow",
+          "public": true,
+          "signature": "swallow(fn, *a, **kw)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "fn"
+          ]
+        },
+        {
+          "name": "retry",
+          "public": true,
+          "signature": "retry(times, exceptions, fn, *a, **kw)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "times",
+            "exceptions",
+            "fn"
+          ]
+        }
+      ],
+      "tags": [],
+      "deps": [
+        "ada_core"
+      ]
+    },
+    {
+      "module": "geom",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\geom.py",
+      "functions": [
+        {
+          "name": "bbox_from_elements",
+          "public": true,
+          "signature": "bbox_from_elements(elements, expand)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "elements",
+            "expand"
+          ]
+        },
+        {
+          "name": "line_overlap_1d",
+          "public": true,
+          "signature": "line_overlap_1d(a0, a1, b0, b1, tol)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "a0",
+            "a1",
+            "b0",
+            "b1",
+            "tol"
+          ]
+        }
+      ],
+      "tags": [
+        "selection"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "gp",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\gp.py",
+      "functions": [
+        {
+          "name": "_find_gp",
+          "public": false,
+          "signature": "_find_gp(doc, name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        },
+        {
+          "name": "ensure_gp",
+          "public": true,
+          "signature": "ensure_gp(doc, name, ptype, group)",
+          "summary": "Find a Global Parameter by name or create it. Returns (gp, created_bool).",
+          "safe": false,
+          "args": [
+            "doc",
+            "name",
+            "ptype",
+            "group"
+          ]
+        },
+        {
+          "name": "set_gp_value",
+          "public": true,
+          "signature": "set_gp_value(doc, name, value, ptype, group)",
+          "summary": "Create/ensure GP then set value using the correct value container.",
+          "safe": false,
+          "args": [
+            "doc",
+            "name",
+            "value",
+            "ptype",
+            "group"
+          ]
+        },
+        {
+          "name": "get_gp_value",
+          "public": true,
+          "signature": "get_gp_value(doc, name, default)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "name",
+            "default"
+          ]
+        },
+        {
+          "name": "map_global_parameters_by_name",
+          "public": true,
+          "signature": "map_global_parameters_by_name(doc)",
+          "summary": "Create efficient name->GlobalParameter mapping for lookups.",
+          "safe": false,
+          "args": [
+            "doc"
+          ]
+        },
+        {
+          "name": "detect_global_parameter_associations",
+          "public": true,
+          "signature": "detect_global_parameter_associations(elements, doc)",
+          "summary": "Detect GP associations using API handles and name matching.",
+          "safe": false,
+          "args": [
+            "elements",
+            "doc"
+          ]
+        },
+        {
+          "name": "dissociate_global_parameter_safely",
+          "public": true,
+          "signature": "dissociate_global_parameter_safely(entry, doc)",
+          "summary": "Safely dissociate GP while preserving parameter value.",
+          "safe": false,
+          "args": [
+            "entry",
+            "doc"
+          ]
+        },
+        {
+          "name": "bulk_dissociate_global_parameters",
+          "public": true,
+          "signature": "bulk_dissociate_global_parameters(associations, doc)",
+          "summary": "Bulk dissociate GP associations; returns (removed, failed).",
+          "safe": false,
+          "args": [
+            "associations",
+            "doc"
+          ]
+        },
+        {
+          "name": "gp_spec_id_safe",
+          "public": true,
+          "signature": "gp_spec_id_safe(kind, DB)",
+          "summary": "Resolve common spec kinds to ForgeTypeId across API variants.",
+          "safe": true,
+          "args": [
+            "kind",
+            "DB"
+          ]
+        },
+        {
+          "name": "create_or_find_gp_safe",
+          "public": true,
+          "signature": "create_or_find_gp_safe(doc, name, kind, default, group)",
+          "summary": "Create or fetch a Global Parameter by name. Returns (ElementId, created_bool).",
+          "safe": true,
+          "args": [
+            "doc",
+            "name",
+            "kind",
+            "default",
+            "group"
+          ]
+        },
+        {
+          "name": "create_legacy_gp_from_param_safe",
+          "public": true,
+          "signature": "create_legacy_gp_from_param_safe(doc, name, sample_param)",
+          "summary": "Create a GP using data type from an existing parameter. Returns (ElementId, created_bool).",
+          "safe": true,
+          "args": [
+            "doc",
+            "name",
+            "sample_param"
+          ]
+        },
+        {
+          "name": "associate_params_safe",
+          "public": true,
+          "signature": "associate_params_safe(elements, inst_to_gp_map, gp_ids)",
+          "summary": "Associate instance parameters to GPs. Returns (count, logs).",
+          "safe": true,
+          "args": [
+            "elements",
+            "inst_to_gp_map",
+            "gp_ids"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "gp",
+        "params",
+        "selection",
+        "units"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "graphics",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\graphics.py",
+      "functions": [
+        {
+          "name": "get_line_pattern_id",
+          "public": true,
+          "signature": "get_line_pattern_id(doc, name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        },
+        {
+          "name": "ensure_line_subcategory",
+          "public": true,
+          "signature": "ensure_line_subcategory(doc, parent_bic, subcat_name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "parent_bic",
+            "subcat_name"
+          ]
+        },
+        {
+          "name": "apply_line_style_override",
+          "public": true,
+          "signature": "apply_line_style_override(view, subcat, line_pattern_id, weight)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "view",
+            "subcat",
+            "line_pattern_id",
+            "weight"
+          ]
+        },
+        {
+          "name": "delete_detail_curves_in_view",
+          "public": true,
+          "signature": "delete_detail_curves_in_view(view, style_name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "view",
+            "style_name"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "views"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "ids",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\ids.py",
+      "functions": [
+        {
+          "name": "eid_int",
+          "public": true,
+          "signature": "eid_int(eid)",
+          "summary": "Robust ElementId \u2192 int.",
+          "safe": false,
+          "args": [
+            "eid"
+          ]
+        },
+        {
+          "name": "eid_str",
+          "public": true,
+          "signature": "eid_str(eid)",
+          "summary": "Human-readable ElementId string, safe for logs/UI.",
+          "safe": false,
+          "args": [
+            "eid"
+          ]
+        }
+      ],
+      "tags": [
+        "selection"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "levels",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\levels.py",
+      "functions": [
+        {
+          "name": "is_ground_level",
+          "public": true,
+          "signature": "is_ground_level(level)",
+          "summary": "Matches 'ground', 'level 0', 'l0', 'grade' or ~0 elevation.",
+          "safe": false,
+          "args": [
+            "level"
+          ]
+        }
+      ],
+      "tags": [
+        "params"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "log",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\log.py",
+      "functions": [
+        {
+          "name": "log_info",
+          "public": true,
+          "signature": "log_info(*a)",
+          "summary": "",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "log_warn",
+          "public": true,
+          "signature": "log_warn(*a)",
+          "summary": "",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "log_err",
+          "public": true,
+          "signature": "log_err(*a)",
+          "summary": "",
+          "safe": false,
+          "args": []
+        }
+      ],
+      "tags": [],
+      "deps": [
+        "ada_core"
+      ]
+    },
+    {
+      "module": "naming",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\naming.py",
+      "functions": [
+        {
+          "name": "slug",
+          "public": true,
+          "signature": "slug(text, repl)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "text",
+            "repl"
+          ]
+        },
+        {
+          "name": "dedupe_name",
+          "public": true,
+          "signature": "dedupe_name(base, existing_names, sep, max_len)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "base",
+            "existing_names",
+            "sep",
+            "max_len"
+          ]
+        },
+        {
+          "name": "sequence",
+          "public": true,
+          "signature": "sequence(prefix, start, width)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "prefix",
+            "start",
+            "width"
+          ]
+        }
+      ],
+      "tags": [],
+      "deps": [
+        "ada_core"
+      ]
+    },
+    {
+      "module": "params",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\params.py",
+      "functions": [
+        {
+          "name": "specs_from_template",
+          "public": true,
+          "signature": "specs_from_template(template_data)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "template_data"
+          ]
+        },
+        {
+          "name": "get_element_id_value",
+          "public": true,
+          "signature": "get_element_id_value(element_id)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "element_id"
+          ]
+        },
+        {
+          "name": "read_parameter_typed",
+          "public": true,
+          "signature": "read_parameter_typed(param, DB)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "DB"
+          ]
+        },
+        {
+          "name": "write_parameter_typed",
+          "public": true,
+          "signature": "write_parameter_typed(param, value_info)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "value_info"
+          ]
+        },
+        {
+          "name": "get_parameter_element_id",
+          "public": true,
+          "signature": "get_parameter_element_id(param, DB)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "DB"
+          ]
+        },
+        {
+          "name": "get_parameter_by_name",
+          "public": true,
+          "signature": "get_parameter_by_name(element, param_name, DB)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "element",
+            "param_name",
+            "DB"
+          ]
+        },
+        {
+          "name": "has_parameter_value",
+          "public": true,
+          "signature": "has_parameter_value(param)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param"
+          ]
+        },
+        {
+          "name": "set_textnote_text_safe",
+          "public": true,
+          "signature": "set_textnote_text_safe(tn, text, DB)",
+          "summary": "Set TextNote text via TEXT_TEXT; falls back to SetText if available. Returns bool.",
+          "safe": true,
+          "args": [
+            "tn",
+            "text",
+            "DB"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "params",
+        "selection",
+        "ui",
+        "units"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "roofs",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\roofs.py",
+      "functions": [
+        {
+          "name": "pick_roofs",
+          "public": true,
+          "signature": "pick_roofs(uidoc, prompt)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "uidoc",
+            "prompt"
+          ]
+        },
+        {
+          "name": "roof_profile_curves",
+          "public": true,
+          "signature": "roof_profile_curves(roof)",
+          "summary": "Try to pull explicit footprint profiles (fast path).",
+          "safe": false,
+          "args": [
+            "roof"
+          ]
+        },
+        {
+          "name": "_slice_solid_edges_at_z",
+          "public": false,
+          "signature": "_slice_solid_edges_at_z(solid, z, tol)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "solid",
+            "z",
+            "tol"
+          ]
+        },
+        {
+          "name": "slice_roof_at_z",
+          "public": true,
+          "signature": "slice_roof_at_z(roof, z, tol)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "roof",
+            "z",
+            "tol"
+          ]
+        }
+      ],
+      "tags": [
+        "selection"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "runtime",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\runtime.py",
+      "functions": [
+        {
+          "name": "get_doc_uidoc",
+          "public": true,
+          "signature": "get_doc_uidoc()",
+          "summary": "Return (uidoc, doc) from pyRevit runtime via __revit__ (unchanged).",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "get_uiapp_app",
+          "public": true,
+          "signature": "get_uiapp_app()",
+          "summary": "Return (uiapp, app) using the same __revit__ handle.",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "safe_get_doc_uidoc",
+          "public": true,
+          "signature": "safe_get_doc_uidoc()",
+          "summary": "Optional convenience: if __revit__ is missing for any reason,",
+          "safe": false,
+          "args": []
+        }
+      ],
+      "tags": [],
+      "deps": [
+        "pyrevit",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "selection",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\selection.py",
+      "functions": [
+        {
+          "name": "preselected_of_types",
+          "public": true,
+          "signature": "preselected_of_types(uidoc, doc, *allowed_types)",
+          "summary": "Return preselected elements filtered by the given types. Accepts *types or a single sequence.",
+          "safe": false,
+          "args": [
+            "uidoc",
+            "doc"
+          ]
+        },
+        {
+          "name": "pick_until_esc",
+          "public": true,
+          "signature": "pick_until_esc(uidoc, doc, prompt, *allowed_types)",
+          "summary": "Click elements of given types one-by-one until the user presses Esc. Returns list without duplicates.",
+          "safe": false,
+          "args": [
+            "uidoc",
+            "doc",
+            "prompt"
+          ]
+        },
+        {
+          "name": "preselected_textnotes",
+          "public": true,
+          "signature": "preselected_textnotes(uidoc, doc)",
+          "summary": "Return preselected TextNotes if any, else [].",
+          "safe": false,
+          "args": [
+            "uidoc",
+            "doc"
+          ]
+        },
+        {
+          "name": "pick_textnotes",
+          "public": true,
+          "signature": "pick_textnotes(uidoc, doc, prompt)",
+          "summary": "Click TextNotes until Esc; filter on Python side to avoid ISelectionFilter quirks.",
+          "safe": false,
+          "args": [
+            "uidoc",
+            "doc",
+            "prompt"
+          ]
+        },
+        {
+          "name": "safe_pick",
+          "public": true,
+          "signature": "safe_pick(uidoc, doc, prompt, allowed_types)",
+          "summary": "Pick a single element; return None on Esc. Optionally restrict to types.",
+          "safe": false,
+          "args": [
+            "uidoc",
+            "doc",
+            "prompt",
+            "allowed_types"
+          ]
+        },
+        {
+          "name": "pick_elements_by_category",
+          "public": true,
+          "signature": "pick_elements_by_category(uidoc, doc, prompt, categories, unique_only)",
+          "summary": "Pick-until-Esc for specific BuiltInCategories; returns elements (unique if unique_only).",
+          "safe": false,
+          "args": [
+            "uidoc",
+            "doc",
+            "prompt",
+            "categories",
+            "unique_only"
+          ]
+        }
+      ],
+      "tags": [
+        "selection"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "tags",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\tags.py",
+      "functions": [
+        {
+          "name": "tag_element",
+          "public": true,
+          "signature": "tag_element(doc, view, elem, symbol)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "view",
+            "elem",
+            "symbol"
+          ]
+        }
+      ],
+      "tags": [
+        "selection",
+        "views"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "text",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\text.py",
+      "functions": [
+        {
+          "name": "convert_case",
+          "public": true,
+          "signature": "convert_case(txt, mode)",
+          "summary": "Convert text according to mode: 'lowercase', 'UPPERCASE', 'Title Case'.",
+          "safe": false,
+          "args": [
+            "txt",
+            "mode"
+          ]
+        }
+      ],
+      "tags": [],
+      "deps": [
+        "ada_core"
+      ]
+    },
+    {
+      "module": "transactions",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\transactions.py",
+      "functions": [
+        {
+          "name": "batched",
+          "public": true,
+          "signature": "batched(doc, name, items, fn)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "name",
+            "items",
+            "fn"
+          ]
+        }
+      ],
+      "tags": [
+        "units"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "tx",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\tx.py",
+      "functions": [
+        {
+          "name": "transact",
+          "public": true,
+          "signature": "transact(doc, name)",
+          "summary": "Usage:",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        },
+        {
+          "name": "run_in_tx",
+          "public": true,
+          "signature": "run_in_tx(doc, name, fn)",
+          "summary": "Run a callable inside a transaction and return its result.",
+          "safe": false,
+          "args": [
+            "doc",
+            "name",
+            "fn"
+          ]
+        },
+        {
+          "name": "subtransact",
+          "public": true,
+          "signature": "subtransact(doc, name)",
+          "summary": "Semantically separate nested scopes; same as transact.",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        }
+      ],
+      "tags": [
+        "units"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "txn",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\txn.py",
+      "functions": [
+        {
+          "name": "in_txn",
+          "public": true,
+          "signature": "in_txn(doc, name)",
+          "summary": "Decorator: run function in a transaction.",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        }
+      ],
+      "tags": [
+        "units"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "types",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\types.py",
+      "functions": [
+        {
+          "name": "find_type_by_name_and_family",
+          "public": true,
+          "signature": "find_type_by_name_and_family(doc, type_name, family_name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "type_name",
+            "family_name"
+          ]
+        },
+        {
+          "name": "duplicate_type_with_name",
+          "public": true,
+          "signature": "duplicate_type_with_name(orig_type, new_name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "orig_type",
+            "new_name"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "params"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "ui",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\ui.py",
+      "functions": [
+        {
+          "name": "_forms",
+          "public": false,
+          "signature": "_forms()",
+          "summary": "",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "alert",
+          "public": true,
+          "signature": "alert(message, title)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "message",
+            "title"
+          ]
+        },
+        {
+          "name": "confirm",
+          "public": true,
+          "signature": "confirm(message, title)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "message",
+            "title"
+          ]
+        },
+        {
+          "name": "choose_yes_no",
+          "public": true,
+          "signature": "choose_yes_no(message, title, yes, no)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "message",
+            "title",
+            "yes",
+            "no"
+          ]
+        },
+        {
+          "name": "ask_string",
+          "public": true,
+          "signature": "ask_string(prompt, default, title)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "prompt",
+            "default",
+            "title"
+          ]
+        },
+        {
+          "name": "_ada_v6_buttons",
+          "public": false,
+          "signature": "_ada_v6_buttons(title, message, buttons)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "title",
+            "message",
+            "buttons"
+          ]
+        },
+        {
+          "name": "alert_v6",
+          "public": true,
+          "signature": "alert_v6(msg, title)",
+          "summary": "Themed alert preferred (v6-first).",
+          "safe": false,
+          "args": [
+            "msg",
+            "title"
+          ]
+        },
+        {
+          "name": "confirm_v6",
+          "public": true,
+          "signature": "confirm_v6(msg, title)",
+          "summary": "Themed Yes/No; returns bool. Never overrides existing confirm().",
+          "safe": false,
+          "args": [
+            "msg",
+            "title"
+          ]
+        },
+        {
+          "name": "big_buttons",
+          "public": true,
+          "signature": "big_buttons(title, options, message, cancel)",
+          "summary": "Three-button style chooser.",
+          "safe": false,
+          "args": [
+            "title",
+            "options",
+            "message",
+            "cancel"
+          ]
+        }
+      ],
+      "tags": [
+        "ui",
+        "units"
+      ],
+      "deps": [
+        "revit_api",
+        "pyrevit",
+        "ada_bootstrap",
+        "ada_brandforms_v6"
+      ]
+    },
+    {
+      "module": "ui_bulk",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\ui_bulk.py",
+      "functions": [
+        {
+          "name": "_ada_safe_text",
+          "public": false,
+          "signature": "_ada_safe_text(val)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "val"
+          ]
+        },
+        {
+          "name": "_ada_style_button",
+          "public": false,
+          "signature": "_ada_style_button(btn, primary)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "btn",
+            "primary"
+          ]
+        },
+        {
+          "name": "edit_parameters_bulk_winforms",
+          "public": true,
+          "signature": "edit_parameters_bulk_winforms(template_data, sample_window, title)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "self",
+            "template_data",
+            "sample_window",
+            "title"
+          ]
+        }
+      ],
+      "tags": [
+        "params",
+        "ui",
+        "units"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "units",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\units.py",
+      "functions": [
+        {
+          "name": "mm_to_ft",
+          "public": true,
+          "signature": "mm_to_ft(mm)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "mm"
+          ]
+        },
+        {
+          "name": "ft_to_mm",
+          "public": true,
+          "signature": "ft_to_mm(ft)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "ft"
+          ]
+        },
+        {
+          "name": "parse_float",
+          "public": true,
+          "signature": "parse_float(text, default)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "text",
+            "default"
+          ]
+        },
+        {
+          "name": "is_zero_tol",
+          "public": true,
+          "signature": "is_zero_tol(a, b, tol)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "a",
+            "b",
+            "tol"
+          ]
+        },
+        {
+          "name": "to_internal_length",
+          "public": true,
+          "signature": "to_internal_length(value_mm)",
+          "summary": "Convenience alias for mm_to_ft with clearer intent.",
+          "safe": false,
+          "args": [
+            "value_mm"
+          ]
+        },
+        {
+          "name": "to_display_mm",
+          "public": true,
+          "signature": "to_display_mm(value_ft)",
+          "summary": "Alias for ft_to_mm; name mirrors intent in UI code.",
+          "safe": false,
+          "args": [
+            "value_ft"
+          ]
+        },
+        {
+          "name": "gp_spec_id_safe",
+          "public": true,
+          "signature": "gp_spec_id_safe(kind, DB)",
+          "summary": "Resolve common spec kinds to ForgeTypeId across API variants.",
+          "safe": true,
+          "args": [
+            "kind",
+            "DB"
+          ]
+        },
+        {
+          "name": "create_or_find_gp_safe",
+          "public": true,
+          "signature": "create_or_find_gp_safe(doc, name, kind, default, group)",
+          "summary": "Create or fetch a Global Parameter by name. Returns (ElementId, created_bool).",
+          "safe": true,
+          "args": [
+            "doc",
+            "name",
+            "kind",
+            "default",
+            "group"
+          ]
+        },
+        {
+          "name": "create_legacy_gp_from_param_safe",
+          "public": true,
+          "signature": "create_legacy_gp_from_param_safe(doc, name, sample_param)",
+          "summary": "Create a GP using data type from an existing parameter. Returns (ElementId, created_bool).",
+          "safe": true,
+          "args": [
+            "doc",
+            "name",
+            "sample_param"
+          ]
+        },
+        {
+          "name": "associate_params_safe",
+          "public": true,
+          "signature": "associate_params_safe(elements, inst_to_gp_map, gp_ids)",
+          "summary": "Associate instance parameters to GPs. Returns (count, logs).",
+          "safe": true,
+          "args": [
+            "elements",
+            "inst_to_gp_map",
+            "gp_ids"
+          ]
+        }
+      ],
+      "tags": [
+        "gp",
+        "params",
+        "selection",
+        "units"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "views",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\views.py",
+      "functions": [
+        {
+          "name": "section_type",
+          "public": true,
+          "signature": "section_type(doc, name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        },
+        {
+          "name": "view_template_id",
+          "public": true,
+          "signature": "view_template_id(doc, name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        },
+        {
+          "name": "tag_symbol",
+          "public": true,
+          "signature": "tag_symbol(doc, family_name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "family_name"
+          ]
+        },
+        {
+          "name": "windows",
+          "public": true,
+          "signature": "windows(doc, only_new, exclude_skylights)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "only_new",
+            "exclude_skylights"
+          ]
+        },
+        {
+          "name": "taken_view_names",
+          "public": true,
+          "signature": "taken_view_names(doc)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc"
+          ]
+        },
+        {
+          "name": "unique_name",
+          "public": true,
+          "signature": "unique_name(base, taken)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "base",
+            "taken"
+          ]
+        },
+        {
+          "name": "create_window_section",
+          "public": true,
+          "signature": "create_window_section(doc, window, vft, taken, offset_ft=?, interior_ft=?, exterior_margin_ft=?, base_offset_ft=?, extra_headroom_ft=?, head_ft=?)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "window",
+            "vft",
+            "taken"
+          ]
+        },
+        {
+          "name": "ensure_section_type",
+          "public": true,
+          "signature": "ensure_section_type(doc, name, fallback_first)",
+          "summary": "Return section ViewFamilyType by name, or first available if fallback_first=True.",
+          "safe": false,
+          "args": [
+            "doc",
+            "name",
+            "fallback_first"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "params",
+        "ui",
+        "views"
+      ],
+      "deps": [
+        "revit_api"
+      ]
+    },
+    {
+      "module": "viewsheets",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\viewsheets.py",
+      "functions": [
+        {
+          "name": "place_view_on_sheet",
+          "public": true,
+          "signature": "place_view_on_sheet(doc, sheet, view, pt)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "view",
+            "pt"
+          ]
+        },
+        {
+          "name": "grid_layout",
+          "public": true,
+          "signature": "grid_layout(count, cols, cell_w, cell_h, start, gutter_w, gutter_h)",
+          "summary": "Return a list of XYZ positions for a grid with 'count' items.",
+          "safe": false,
+          "args": [
+            "count",
+            "cols",
+            "cell_w",
+            "cell_h",
+            "start",
+            "gutter_w",
+            "gutter_h"
+          ]
+        }
+      ],
+      "tags": [
+        "views"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    }
+  ]
+}
