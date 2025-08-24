@@ -2,7 +2,9 @@
 # Deterministic ADa UI loader (submodule-safe) with diagnostics.
 
 from __future__ import annotations
-import sys, importlib, traceback
+import sys, traceback
+import importlib
+import importlib.util   # <-- explicitly bring in .util
 from pathlib import Path
 from typing import Any, Iterable
 
