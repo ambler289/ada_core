@@ -1,71 +1,72 @@
-# lib/ada_core/ui_loader.py
-# Unified ADa UI loader (works with lib/ submodules & nested folders)
+# ui_loader.py — minimal, deterministic loader for ADa UI (lib/ada_ui only)
 
-import sys, importlib, fnmatch
+import sys, importlib
 from pathlib import Path
 
-def _find_extension_lib() -> Path | None:
+# 1) Put this extension's lib first on sys.path
+def _extension_lib() -> Path | None:
     here = Path(__file__).resolve()
     for p in [here] + list(here.parents):
         if p.name.endswith(".extension"):
             lib = p / "lib"
             if lib.exists():
-                if str(lib) not in sys.path:
-                    sys.path.insert(0, str(lib))
+                if str(lib) in sys.path:
+                    sys.path.remove(str(lib))
+                sys.path.insert(0, str(lib))     # force-first
                 return lib
     return None
 
-LIB_DIR = _find_extension_lib()
+LIB_DIR = _extension_lib()
+ADA_UI_DIR = LIB_DIR / "ada_ui" if LIB_DIR else None
 
-def _iter_candidates(patterns: list[str]):
-    """Yield paths under lib/ that match any of the patterns (recursive)."""
-    if not LIB_DIR:
-        return
-    for path in LIB_DIR.rglob("*.py"):
-        name = path.name
-        if any(fnmatch.fnmatch(name, pat) for pat in patterns):
-            yield path
+# 2) Nuke any previously-imported "ada_ui" that might be shadowing our submodule
+for k in list(sys.modules.keys()):
+    if k == "ada_ui" or k.startswith("ada_ui."):
+        sys.modules.pop(k, None)
 
-def _load_module_from_path(path: Path):
-    spec = importlib.util.spec_from_file_location("ada_dyn." + path.stem, str(path))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)  # type: ignore
-    return mod
+def _load_by_file(fname: str):
+    """Load a module from lib/ada_ui/<fname> if present."""
+    if not ADA_UI_DIR:
+        return None, None
+    path = ADA_UI_DIR / fname
+    if not path.exists():
+        return None, None
+    try:
+        spec = importlib.util.spec_from_file_location("ada_ui_" + path.stem, str(path))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore
+        return mod, str(path)
+    except Exception:
+        return None, None
 
 def _resolve_alert():
-    # 1) Prefer brandforms v6 -> v5 -> v4_2 by filename, anywhere under lib/
-    for pattern, tag in (("ada_brandforms_v6.py", "v6"),
-                         ("ada_brandforms_v5.py", "v5"),
-                         ("ada_brandforms_v4_2.py", "v4_2")):
-        for p in _iter_candidates([pattern]):
-            try:
-                m = _load_module_from_path(p)
-                if hasattr(m, "alert"):
-                    return m.alert, f"{p} (alert)"
-                if hasattr(m, "BrandForms"):
-                    return (lambda msg, title='Message': m.BrandForms.alert(msg, title=title)), f"{p} (BrandForms.alert)"
-            except Exception:
-                continue
+    # v6 -> v5 -> v4_2 from lib/ada_ui/* only
+    for fname in ("ada_brandforms_v6.py", "ada_brandforms_v5.py", "ada_brandforms_v4_2.py"):
+        mod, src = _load_by_file(fname)
+        if mod:
+            if hasattr(mod, "alert"):
+                return mod.alert, f"{src} (alert)"
+            if hasattr(mod, "BrandForms"):
+                return (lambda msg, title='Message': mod.BrandForms.alert(msg, title=title)), f"{src} (BrandForms.alert)"
 
-    # 2) Fallback to ada_bootstrap.forms (anywhere under lib/)
-    for p in _iter_candidates(["ada_bootstrap.py"]):
-        try:
-            m = _load_module_from_path(p)
-            if hasattr(m, "forms") and hasattr(m.forms, "alert"):
-                return (lambda msg, title='Message': m.forms.alert(msg, title=title)), f"{p} (bootstrap.forms)"
-        except Exception:
-            continue
+    # bootstrap fallback from lib/ada_ui/ only
+    mod, src = _load_by_file("ada_bootstrap.py")
+    if mod and hasattr(mod, "forms") and hasattr(mod.forms, "alert"):
+        return (lambda m, title='Message': mod.forms.alert(m, title=title)), f"{src} (bootstrap.forms)"
 
-    # 3) pyRevit fallback
+    # pyRevit fallback
     try:
         from pyrevit import forms as _pv
         return (lambda m, title="Message": _pv.alert(m, title=title)), "pyrevit.forms"
     except Exception:
         pass
 
-    # 4) Last resort
+    # OS message box (last resort)
     from System.Windows import MessageBox
     return (lambda m, title="Message": MessageBox.Show(str(m), str(title))), "System.Windows.MessageBox"
 
 # Public API
 ui_alert, __ui_source__ = _resolve_alert()
+
+# Optional quick self-test (comment out when done)
+# try: ui_alert(f"UI provider: {__ui_source__}", title="Preflight"); except: pass
