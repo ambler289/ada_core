@@ -158,3 +158,112 @@ def ui_select(title: str, items: Iterable[Any], message: str | None = None, mult
             pass
     ui_alert(message or "Select item(s) then press OK.", title=title)
     return items if (multi and items) else (items[0] if items else None)
+
+
+# ── Back-compat `forms` adapter (pyRevit-style) ────────────────────────────────
+# Many existing scripts expect: `from ada_core.ui_loader import forms` and then
+# call either `forms.SelectFromList.show(...)` (class-style) or
+# `forms.SelectFromList(...)` / `forms.select_from_list(...)` (callable-style).
+# This adapter makes BOTH styles work uniformly across providers (v6/v5/v4/v3/
+# bootstrap/pyRevit) and falls back to a minimal WinForms selector.
+
+class _SelectFromListAdapter(object):
+    \"\"\"Callable object that also exposes .show(...).\"\"\"
+    def __call__(self, items, title=\"Select\", multiselect=False, ok_label=\"OK\", **kwargs):
+        return self.show(items, title=title, button_name=ok_label, multiselect=multiselect, **kwargs)
+
+    @staticmethod
+    def show(options, title=\"Select\", button_name=\"OK\", multiselect=False, **kwargs):
+        # 1) v6 direct function
+        if _provider_mod is not None and hasattr(_provider_mod, \"select_from_list\") and callable(_provider_mod.select_from_list):
+            try:
+                # Map arguments into v6 signature
+                return _provider_mod.select_from_list(
+                    options,
+                    title=title,
+                    multiselect=bool(multiselect),
+                    ok_label=str(button_name) if button_name else \"OK\",
+                    cancel_label=\"Cancel\",
+                    prompt=kwargs.get(\"prompt\"),
+                    name_attr=kwargs.get(\"name_attr\"),
+                    to_str=kwargs.get(\"to_str\"),
+                )
+            except Exception:
+                pass
+
+        # 2) v4/v3 BrandForms.SelectFromList.show(...)
+        try:
+            if _provider_mod is not None and hasattr(_provider_mod, \"BrandForms\") and hasattr(_provider_mod.BrandForms, \"SelectFromList\"):
+                sfl = _provider_mod.BrandForms.SelectFromList
+                if hasattr(sfl, \"show\"):
+                    return sfl.show(options, title=title, button_name=button_name or \"OK\", multiselect=bool(multiselect))
+        except Exception:
+            pass
+
+        # 3) bootstrap forms.SelectFromList (callable or object with .show)
+        try:
+            m_boot, _src = _load_file(\"ada_bootstrap.py\")
+            if m_boot is not None and hasattr(m_boot, \"forms\"):
+                sfl = getattr(m_boot.forms, \"SelectFromList\", None) or getattr(m_boot.forms, \"select_from_list\", None)
+                if sfl is not None:
+                    # callable style
+                    if callable(sfl) and not hasattr(sfl, \"show\"):
+                        return sfl(options, title=title, multiselect=bool(multiselect))
+                    # object-with-show style
+                    if hasattr(sfl, \"show\"):
+                        return sfl.show(options, title=title, button_name=button_name or \"OK\", multiselect=bool(multiselect))
+        except Exception:
+            pass
+
+        # 4) pyRevit forms (class with .show)
+        try:
+            from pyrevit import forms as _pv  # type: ignore
+            if hasattr(_pv, \"SelectFromList\") and hasattr(_pv.SelectFromList, \"show\"):
+                return _pv.SelectFromList.show(options, title=title, button_name=button_name or \"OK\", multiselect=bool(multiselect))
+        except Exception:
+            pass
+
+        # 5) Final tiny fallback: use our ui_select() prompt then return first/selected
+        return ui_select(title=title, items=options or [], multi=bool(multiselect))
+
+class _FormsAdapter(object):
+    # Normalized alert/confirm/input helpers (delegate to the unified helpers above)
+    alert          = staticmethod(ui_alert)
+    confirm        = staticmethod(ui_confirm)
+    ask_yes_no     = staticmethod(lambda msg, title=\"Confirm\": bool(ui_confirm(msg, title)))
+    ask_for_string = staticmethod(lambda prompt=\"\", title=\"Input\", default=\"\": ui_input(title, prompt, default))
+
+    # List selectors: expose both classic and pythonic names
+    SelectFromList   = _SelectFromListAdapter()
+    select_from_list = SelectFromList
+
+    # Convenience: expose a thin wrapper that mirrors old code patterns
+    def big_button_box(self, title=\"Choose\", buttons=None, cancel=True):
+        # Try to leverage ada_bootstrap's themed big buttons if available
+        try:
+            m_boot, _src = _load_file(\"ada_bootstrap.py\")
+            if m_boot is not None and hasattr(m_boot, \"_big_button_box\") or hasattr(m_boot, \"big_button_box\"):
+                fun = getattr(m_boot, \"_big_button_box\", None) or getattr(m_boot, \"big_button_box\", None)
+                if callable(fun):
+                    return fun(title=title, buttons=list(buttons or []), cancel=cancel)
+        except Exception:
+            pass
+        # Otherwise fall back to a simple SelectFromList
+        btns = list(buttons or [])
+        if not btns:
+            return None
+        res = self.SelectFromList(btns, title=title, multiselect=False)
+        return res
+
+# Export `forms` and convenience free function `select_from_list` for new code
+forms = _FormsAdapter()
+
+def select_from_list(items, **kwargs):
+    return forms.SelectFromList(items, **kwargs)
+
+# Public symbols
+try:
+    __all__  # may not exist in earlier revisions
+except NameError:
+    __all__ = []
+__all__ += [\"forms\", \"select_from_list\", \"ui_alert\", \"ui_confirm\", \"ui_input\", \"ui_select\", \"__ui_source__\"]
