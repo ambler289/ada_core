@@ -15,6 +15,72 @@
       ]
     },
     {
+      "module": "ada_ui_bootstrap",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\ada_ui_bootstrap.py",
+      "functions": [
+        {
+          "name": "_candidate_paths",
+          "public": false,
+          "signature": "_candidate_paths(script_dir)",
+          "summary": "Yield best-guess locations for ada_ui.",
+          "safe": false,
+          "args": [
+            "script_dir"
+          ]
+        },
+        {
+          "name": "ensure_ada_ui_path",
+          "public": true,
+          "signature": "ensure_ada_ui_path(script_file)",
+          "summary": "Ensure ada_ui directory is on sys.path. Returns the path used (or None).",
+          "safe": false,
+          "args": [
+            "script_file"
+          ]
+        },
+        {
+          "name": "_try_import",
+          "public": false,
+          "signature": "_try_import(name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "name"
+          ]
+        },
+        {
+          "name": "get_forms",
+          "public": true,
+          "signature": "get_forms(prefer)",
+          "summary": "Import a 'forms' provider with sensible fallbacks.",
+          "safe": false,
+          "args": [
+            "prefer"
+          ]
+        },
+        {
+          "name": "reload_ada_ui",
+          "public": true,
+          "signature": "reload_ada_ui(prefer)",
+          "summary": "Hard-reload ada_ui + themed UI modules so changes are picked up without restarting Revit.",
+          "safe": false,
+          "args": [
+            "prefer"
+          ]
+        }
+      ],
+      "tags": [
+        "selection",
+        "ui"
+      ],
+      "deps": [
+        "revit_api",
+        "pyrevit",
+        "ada_bootstrap",
+        "ada_brandforms_v6"
+      ]
+    },
+    {
       "module": "collect",
       "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\collect.py",
       "functions": [
@@ -372,10 +438,50 @@
       "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\gp.py",
       "functions": [
         {
-          "name": "_find_gp",
+          "name": "_has_spec_utils",
           "public": false,
-          "signature": "_find_gp(doc, name)",
+          "signature": "_has_spec_utils()",
           "summary": "",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "_coerce_spec",
+          "public": false,
+          "signature": "_coerce_spec(ptype_or_spec)",
+          "summary": "Accept either a ForgeTypeId (preferred) or a legacy ParameterType and",
+          "safe": false,
+          "args": [
+            "ptype_or_spec"
+          ]
+        },
+        {
+          "name": "_mk_value_container",
+          "public": false,
+          "signature": "_mk_value_container(value, hint_spec)",
+          "summary": "Return correct DB.*ParameterValue for a python value.",
+          "safe": false,
+          "args": [
+            "value",
+            "hint_spec"
+          ]
+        },
+        {
+          "name": "_find_gp_internal",
+          "public": false,
+          "signature": "_find_gp_internal(doc, name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        },
+        {
+          "name": "find_gp",
+          "public": true,
+          "signature": "find_gp(doc, name)",
+          "summary": "Public finder (safe).",
           "safe": false,
           "args": [
             "doc",
@@ -386,7 +492,7 @@
           "name": "ensure_gp",
           "public": true,
           "signature": "ensure_gp(doc, name, ptype, group)",
-          "summary": "Find a Global Parameter by name or create it. Returns (gp, created_bool).",
+          "summary": "Find a Global Parameter by name or create it.",
           "safe": false,
           "args": [
             "doc",
@@ -396,10 +502,22 @@
           ]
         },
         {
+          "name": "ensure_gp_by_sample",
+          "public": true,
+          "signature": "ensure_gp_by_sample(doc, name, sample_param)",
+          "summary": "Create a GP using the sample parameter's data type. Returns (gp, created_bool).",
+          "safe": false,
+          "args": [
+            "doc",
+            "name",
+            "sample_param"
+          ]
+        },
+        {
           "name": "set_gp_value",
           "public": true,
           "signature": "set_gp_value(doc, name, value, ptype, group)",
-          "summary": "Create/ensure GP then set value using the correct value container.",
+          "summary": "Ensure a GP then set its value. Returns the GP element.",
           "safe": false,
           "args": [
             "doc",
@@ -410,10 +528,23 @@
           ]
         },
         {
+          "name": "set_gp_value_unit",
+          "public": true,
+          "signature": "set_gp_value_unit(doc, name, unit_tag, value)",
+          "summary": "Convenience setter that handles simple unit tags:",
+          "safe": false,
+          "args": [
+            "doc",
+            "name",
+            "unit_tag",
+            "value"
+          ]
+        },
+        {
           "name": "get_gp_value",
           "public": true,
           "signature": "get_gp_value(doc, name, default)",
-          "summary": "",
+          "summary": "Return the raw stored value (int/double/string/ElementId) or default if missing.",
           "safe": false,
           "args": [
             "doc",
@@ -422,20 +553,42 @@
           ]
         },
         {
+          "name": "get_gp_value_typed",
+          "public": true,
+          "signature": "get_gp_value_typed(doc, name)",
+          "summary": "Returns (unit_tag, value) with a light inference:",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        },
+        {
           "name": "map_global_parameters_by_name",
           "public": true,
           "signature": "map_global_parameters_by_name(doc)",
-          "summary": "Create efficient name->GlobalParameter mapping for lookups.",
+          "summary": "Build a name \u2192 GlobalParameter map.",
           "safe": false,
           "args": [
             "doc"
           ]
         },
         {
+          "name": "collect_gps_with_prefix",
+          "public": true,
+          "signature": "collect_gps_with_prefix(doc, prefix)",
+          "summary": "Return all GPs whose names start with `prefix`.",
+          "safe": false,
+          "args": [
+            "doc",
+            "prefix"
+          ]
+        },
+        {
           "name": "detect_global_parameter_associations",
           "public": true,
           "signature": "detect_global_parameter_associations(elements, doc)",
-          "summary": "Detect GP associations using API handles and name matching.",
+          "summary": "Detect GP associations for a list of elements.",
           "safe": false,
           "args": [
             "elements",
@@ -446,7 +599,7 @@
           "name": "dissociate_global_parameter_safely",
           "public": true,
           "signature": "dissociate_global_parameter_safely(entry, doc)",
-          "summary": "Safely dissociate GP while preserving parameter value.",
+          "summary": "Safely dissociate a GP from a parameter while preserving the current parameter value.",
           "safe": false,
           "args": [
             "entry",
@@ -457,7 +610,7 @@
           "name": "bulk_dissociate_global_parameters",
           "public": true,
           "signature": "bulk_dissociate_global_parameters(associations, doc)",
-          "summary": "Bulk dissociate GP associations; returns (removed, failed).",
+          "summary": "Bulk-dissociate GP associations; returns (removed, failed).",
           "safe": false,
           "args": [
             "associations",
@@ -465,47 +618,10 @@
           ]
         },
         {
-          "name": "gp_spec_id_safe",
-          "public": true,
-          "signature": "gp_spec_id_safe(kind, DB)",
-          "summary": "Resolve common spec kinds to ForgeTypeId across API variants.",
-          "safe": true,
-          "args": [
-            "kind",
-            "DB"
-          ]
-        },
-        {
-          "name": "create_or_find_gp_safe",
-          "public": true,
-          "signature": "create_or_find_gp_safe(doc, name, kind, default, group)",
-          "summary": "Create or fetch a Global Parameter by name. Returns (ElementId, created_bool).",
-          "safe": true,
-          "args": [
-            "doc",
-            "name",
-            "kind",
-            "default",
-            "group"
-          ]
-        },
-        {
-          "name": "create_legacy_gp_from_param_safe",
-          "public": true,
-          "signature": "create_legacy_gp_from_param_safe(doc, name, sample_param)",
-          "summary": "Create a GP using data type from an existing parameter. Returns (ElementId, created_bool).",
-          "safe": true,
-          "args": [
-            "doc",
-            "name",
-            "sample_param"
-          ]
-        },
-        {
           "name": "associate_params_safe",
           "public": true,
           "signature": "associate_params_safe(elements, inst_to_gp_map, gp_ids)",
-          "summary": "Associate instance parameters to GPs. Returns (count, logs).",
+          "summary": "Associate instance parameters to GPs by name.",
           "safe": true,
           "args": [
             "elements",
@@ -920,6 +1036,128 @@
       ]
     },
     {
+      "module": "scope",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\scope.py",
+      "functions": [
+        {
+          "name": "_big_buttons",
+          "public": false,
+          "signature": "_big_buttons(title, options, message)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "title",
+            "options",
+            "message"
+          ]
+        },
+        {
+          "name": "_select_many",
+          "public": false,
+          "signature": "_select_many(title, labels)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "title",
+            "labels"
+          ]
+        },
+        {
+          "name": "dedupe",
+          "public": true,
+          "signature": "dedupe(elems, doc)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "elems",
+            "doc"
+          ]
+        },
+        {
+          "name": "collect_in_project",
+          "public": true,
+          "signature": "collect_in_project(doc, bic_or_bics, where_element_is_not_type)",
+          "summary": "Collect all elements for one or more BuiltInCategory values across the project.",
+          "safe": false,
+          "args": [
+            "doc",
+            "bic_or_bics",
+            "where_element_is_not_type"
+          ]
+        },
+        {
+          "name": "collect_in_active_view",
+          "public": true,
+          "signature": "collect_in_active_view(doc, uidoc, bic_or_bics, where_element_is_not_type)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "uidoc",
+            "bic_or_bics",
+            "where_element_is_not_type"
+          ]
+        },
+        {
+          "name": "is_new_construction",
+          "public": true,
+          "signature": "is_new_construction(e)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "e"
+          ]
+        },
+        {
+          "name": "group_by_host_type",
+          "public": true,
+          "signature": "group_by_host_type(doc, elements)",
+          "summary": "Group hostable elements (e.g., windows/doors) by their host's Type name.",
+          "safe": false,
+          "args": [
+            "doc",
+            "elements"
+          ]
+        },
+        {
+          "name": "group_by_param",
+          "public": true,
+          "signature": "group_by_param(elements, param_name)",
+          "summary": "Group elements by an instance parameter's displayed string value.",
+          "safe": false,
+          "args": [
+            "elements",
+            "param_name"
+          ]
+        },
+        {
+          "name": "choose_scope",
+          "public": true,
+          "signature": "choose_scope(doc, uidoc, bic_or_bics, title=?, include_manual=?, include_current_selection=?, include_active_view=?, include_project=?, include_group_by_host_type=?, filter_new_construction_for_auto=?)",
+          "summary": "Generic scope chooser. Returns (elements, scope_label, meta).",
+          "safe": false,
+          "args": [
+            "doc",
+            "uidoc",
+            "bic_or_bics"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "params",
+        "selection",
+        "ui",
+        "units",
+        "views"
+      ],
+      "deps": [
+        "revit_api",
+        "pyrevit",
+        "ada_core"
+      ]
+    },
+    {
       "module": "selection",
       "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\selection.py",
       "functions": [
@@ -1032,6 +1270,46 @@
       ]
     },
     {
+      "module": "templates",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\templates.py",
+      "functions": [
+        {
+          "name": "resolve_roots",
+          "public": true,
+          "signature": "resolve_roots()",
+          "summary": "Returns (templates_dir, projects_dir), considering env overrides.",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "legacy_timestamp",
+          "public": true,
+          "signature": "legacy_timestamp()",
+          "summary": "MMDD_HHMM \u2014 matches your legacy unique suffix style.",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "build_prefix_from_template",
+          "public": true,
+          "signature": "build_prefix_from_template(tpl)",
+          "summary": "Produce a short, unique prefix from template data:",
+          "safe": false,
+          "args": [
+            "tpl"
+          ]
+        }
+      ],
+      "tags": [
+        "selection",
+        "ui"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
       "module": "text",
       "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\text.py",
       "functions": [
@@ -1082,10 +1360,31 @@
       "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\tx.py",
       "functions": [
         {
+          "name": "_apply_silent_warnings",
+          "public": false,
+          "signature": "_apply_silent_warnings(t)",
+          "summary": "Attach the SilentWarnings preprocessor to a Transaction.",
+          "safe": false,
+          "args": [
+            "t"
+          ]
+        },
+        {
           "name": "transact",
           "public": true,
           "signature": "transact(doc, name)",
           "summary": "Usage:",
+          "safe": false,
+          "args": [
+            "doc",
+            "name"
+          ]
+        },
+        {
+          "name": "subtransact",
+          "public": true,
+          "signature": "subtransact(doc, name)",
+          "summary": "Alias of transact; useful for semantic nesting.",
           "safe": false,
           "args": [
             "doc",
@@ -1105,10 +1404,10 @@
           ]
         },
         {
-          "name": "subtransact",
+          "name": "group",
           "public": true,
-          "signature": "subtransact(doc, name)",
-          "summary": "Semantically separate nested scopes; same as transact.",
+          "signature": "group(doc, name)",
+          "summary": "Usage:",
           "safe": false,
           "args": [
             "doc",
@@ -1117,6 +1416,7 @@
         }
       ],
       "tags": [
+        "ui",
         "units"
       ],
       "deps": [
@@ -1189,10 +1489,26 @@
       "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\ui.py",
       "functions": [
         {
+          "name": "_ensure_ada_ui_path",
+          "public": false,
+          "signature": "_ensure_ada_ui_path()",
+          "summary": "",
+          "safe": false,
+          "args": []
+        },
+        {
+          "name": "_backend",
+          "public": false,
+          "signature": "_backend()",
+          "summary": "Return a lightweight object with 'name' and a few callables:",
+          "safe": false,
+          "args": []
+        },
+        {
           "name": "_forms",
           "public": false,
           "signature": "_forms()",
-          "summary": "",
+          "summary": "Kept for compatibility with older imports that expected a forms-like object.",
           "safe": false,
           "args": []
         },
@@ -1211,7 +1527,7 @@
           "name": "confirm",
           "public": true,
           "signature": "confirm(message, title)",
-          "summary": "",
+          "summary": "Yes/No; returns bool.",
           "safe": false,
           "args": [
             "message",
@@ -1244,22 +1560,60 @@
           ]
         },
         {
-          "name": "_ada_v6_buttons",
-          "public": false,
-          "signature": "_ada_v6_buttons(title, message, buttons)",
-          "summary": "",
+          "name": "big_buttons",
+          "public": true,
+          "signature": "big_buttons(title, options, message, cancel)",
+          "summary": "Return clicked label or None.",
           "safe": false,
           "args": [
             "title",
+            "options",
             "message",
-            "buttons"
+            "cancel"
+          ]
+        },
+        {
+          "name": "select_from_list",
+          "public": true,
+          "signature": "select_from_list(items, title, multiselect, name_attr)",
+          "summary": "Return one item (or list of items if multiselect=True).",
+          "safe": false,
+          "args": [
+            "items",
+            "title",
+            "multiselect",
+            "name_attr"
+          ]
+        },
+        {
+          "name": "ask_int",
+          "public": true,
+          "signature": "ask_int(prompt, default, title)",
+          "summary": "Numeric input helper that wraps ask_string.",
+          "safe": false,
+          "args": [
+            "prompt",
+            "default",
+            "title"
+          ]
+        },
+        {
+          "name": "ask_float",
+          "public": true,
+          "signature": "ask_float(prompt, default, title)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "prompt",
+            "default",
+            "title"
           ]
         },
         {
           "name": "alert_v6",
           "public": true,
           "signature": "alert_v6(msg, title)",
-          "summary": "Themed alert preferred (v6-first).",
+          "summary": "Prefer v6 themed alert; gracefully falls back.",
           "safe": false,
           "args": [
             "msg",
@@ -1270,24 +1624,11 @@
           "name": "confirm_v6",
           "public": true,
           "signature": "confirm_v6(msg, title)",
-          "summary": "Themed Yes/No; returns bool. Never overrides existing confirm().",
+          "summary": "",
           "safe": false,
           "args": [
             "msg",
             "title"
-          ]
-        },
-        {
-          "name": "big_buttons",
-          "public": true,
-          "signature": "big_buttons(title, options, message, cancel)",
-          "summary": "Three-button style chooser.",
-          "safe": false,
-          "args": [
-            "title",
-            "options",
-            "message",
-            "cancel"
           ]
         }
       ],
@@ -1299,7 +1640,8 @@
         "revit_api",
         "pyrevit",
         "ada_bootstrap",
-        "ada_brandforms_v6"
+        "ada_brandforms_v6",
+        "ada_core"
       ]
     },
     {
@@ -1358,7 +1700,7 @@
           "name": "mm_to_ft",
           "public": true,
           "signature": "mm_to_ft(mm)",
-          "summary": "",
+          "summary": "Millimetres \u2192 internal feet.",
           "safe": false,
           "args": [
             "mm"
@@ -1368,7 +1710,7 @@
           "name": "ft_to_mm",
           "public": true,
           "signature": "ft_to_mm(ft)",
-          "summary": "",
+          "summary": "Internal feet \u2192 millimetres.",
           "safe": false,
           "args": [
             "ft"
@@ -1401,7 +1743,7 @@
           "name": "to_internal_length",
           "public": true,
           "signature": "to_internal_length(value_mm)",
-          "summary": "Convenience alias for mm_to_ft with clearer intent.",
+          "summary": "Alias for mm_to_ft (semantic clarity in call-sites).",
           "safe": false,
           "args": [
             "value_mm"
@@ -1411,10 +1753,98 @@
           "name": "to_display_mm",
           "public": true,
           "signature": "to_display_mm(value_ft)",
-          "summary": "Alias for ft_to_mm; name mirrors intent in UI code.",
+          "summary": "Alias for ft_to_mm (semantic clarity in call-sites).",
           "safe": false,
           "args": [
             "value_ft"
+          ]
+        },
+        {
+          "name": "deg_to_rad",
+          "public": true,
+          "signature": "deg_to_rad(deg)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "deg"
+          ]
+        },
+        {
+          "name": "rad_to_deg",
+          "public": true,
+          "signature": "rad_to_deg(rad)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "rad"
+          ]
+        },
+        {
+          "name": "to_internal",
+          "public": true,
+          "signature": "to_internal(value, unit_tag)",
+          "summary": "Convert a UI/display value into Revit internal storage:",
+          "safe": false,
+          "args": [
+            "value",
+            "unit_tag"
+          ]
+        },
+        {
+          "name": "to_display",
+          "public": true,
+          "signature": "to_display(value_internal, unit_tag)",
+          "summary": "Convert Revit internal storage into a UI/display value.",
+          "safe": false,
+          "args": [
+            "value_internal",
+            "unit_tag"
+          ]
+        },
+        {
+          "name": "equal_mm",
+          "public": true,
+          "signature": "equal_mm(a_mm, b_mm, tol_mm)",
+          "summary": "Tolerant compare in millimetres (default \u00b10.5 mm).",
+          "safe": false,
+          "args": [
+            "a_mm",
+            "b_mm",
+            "tol_mm"
+          ]
+        },
+        {
+          "name": "equal_ft",
+          "public": true,
+          "signature": "equal_ft(a_ft, b_ft, tol_mm)",
+          "summary": "Tolerant compare in internal feet (compare by \u00b1tol_mm).",
+          "safe": false,
+          "args": [
+            "a_ft",
+            "b_ft",
+            "tol_mm"
+          ]
+        },
+        {
+          "name": "parse_length_mm",
+          "public": true,
+          "signature": "parse_length_mm(text, default_mm)",
+          "summary": "Parse a user-entered length string into millimetres.",
+          "safe": false,
+          "args": [
+            "text",
+            "default_mm"
+          ]
+        },
+        {
+          "name": "format_mm",
+          "public": true,
+          "signature": "format_mm(value_ft, dp)",
+          "summary": "Format internal feet as mm with dp decimals (default 0).",
+          "safe": false,
+          "args": [
+            "value_ft",
+            "dp"
           ]
         },
         {
@@ -1471,6 +1901,7 @@
         "gp",
         "params",
         "selection",
+        "ui",
         "units"
       ],
       "deps": [

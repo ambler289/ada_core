@@ -8,15 +8,7 @@
 Location: `C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty`
 | Top-level | Version | Module Path | Package Name | Available |
 |---|---|---|---|:---:|
-| dateutil | 2.9.0.post0 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\dateutil\__init__.py | dateutil | ✔ |
-| et_xmlfile | 2.0.0 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\et_xmlfile\__init__.py | et_xmlfile | ✔ |
-| numpy | 2.3.1 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\numpy\__init__.py | numpy | ✔ |
-| openpyxl | 3.1.5 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\openpyxl\__init__.py | openpyxl | ✔ |
-| pandas | 2.3.1 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\pandas\__init__.py | pandas | ✔ |
-| pytz | 2025.2 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\pytz\__init__.py | pytz | ✔ |
-| shapely | 2.1.1 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\shapely\__init__.py | shapely | ✔ |
-| six | 1.17.0 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\six.py | six | ✔ |
-| tzdata | 2025.2 | C:\Users\jon\AppData\Roaming\pyRevit\Extensions\ADa-Manage.extension\lib\thirdparty\tzdata\__init__.py | tzdata | ✔ |
+| — | — | — | — | — |
 
 ## CPython site packages (pyRevit runtime)
 | Name | Version | Location | Top-level |

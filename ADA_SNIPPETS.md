@@ -7,6 +7,19 @@ _Auto-generated._
 
 _No functions found_
 
+## ada_ui_bootstrap
+*Tags: selection, ui | Deps: revit_api, pyrevit, ada_bootstrap, ada_brandforms_v6*
+
+- **`_candidate_paths(script_dir)`**  
+  - Yield best-guess locations for ada_ui.
+- **`ensure_ada_ui_path(script_file)`**  
+  - Ensure ada_ui directory is on sys.path. Returns the path used (or None).
+- **`_try_import(name)`**  
+- **`get_forms(prefer)`**  
+  - Import a 'forms' provider with sensible fallbacks.
+- **`reload_ada_ui(prefer)`**  
+  - Hard-reload ada_ui + themed UI modules so changes are picked up without restarting Revit.
+
 ## collect
 *Tags: collect, params, selection, ui, views | Deps: revit_api, ada_core*
 
@@ -69,28 +82,38 @@ _No functions found_
 ## gp
 *Tags: collect, gp, params, selection, units | Deps: revit_api, ada_core*
 
-- **`_find_gp(doc, name)`**  
+- **`_has_spec_utils()`**  
+- **`_coerce_spec(ptype_or_spec)`**  
+  - Accept either a ForgeTypeId (preferred) or a legacy ParameterType and
+- **`_mk_value_container(value, hint_spec)`**  
+  - Return correct DB.*ParameterValue for a python value.
+- **`_find_gp_internal(doc, name)`**  
+- **`find_gp(doc, name)`**  
+  - Public finder (safe).
 - **`ensure_gp(doc, name, ptype, group)`**  
-  - Find a Global Parameter by name or create it. Returns (gp, created_bool).
+  - Find a Global Parameter by name or create it.
+- **`ensure_gp_by_sample(doc, name, sample_param)`**  
+  - Create a GP using the sample parameter's data type. Returns (gp, created_bool).
 - **`set_gp_value(doc, name, value, ptype, group)`**  
-  - Create/ensure GP then set value using the correct value container.
+  - Ensure a GP then set its value. Returns the GP element.
+- **`set_gp_value_unit(doc, name, unit_tag, value)`**  
+  - Convenience setter that handles simple unit tags:
 - **`get_gp_value(doc, name, default)`**  
+  - Return the raw stored value (int/double/string/ElementId) or default if missing.
+- **`get_gp_value_typed(doc, name)`**  
+  - Returns (unit_tag, value) with a light inference:
 - **`map_global_parameters_by_name(doc)`**  
-  - Create efficient name->GlobalParameter mapping for lookups.
+  - Build a name → GlobalParameter map.
+- **`collect_gps_with_prefix(doc, prefix)`**  
+  - Return all GPs whose names start with `prefix`.
 - **`detect_global_parameter_associations(elements, doc)`**  
-  - Detect GP associations using API handles and name matching.
+  - Detect GP associations for a list of elements.
 - **`dissociate_global_parameter_safely(entry, doc)`**  
-  - Safely dissociate GP while preserving parameter value.
+  - Safely dissociate a GP from a parameter while preserving the current parameter value.
 - **`bulk_dissociate_global_parameters(associations, doc)`**  
-  - Bulk dissociate GP associations; returns (removed, failed).
-- **`gp_spec_id_safe(kind, DB)`** · **safe**  
-  - Resolve common spec kinds to ForgeTypeId across API variants.
-- **`create_or_find_gp_safe(doc, name, kind, default, group)`** · **safe**  
-  - Create or fetch a Global Parameter by name. Returns (ElementId, created_bool).
-- **`create_legacy_gp_from_param_safe(doc, name, sample_param)`** · **safe**  
-  - Create a GP using data type from an existing parameter. Returns (ElementId, created_bool).
+  - Bulk-dissociate GP associations; returns (removed, failed).
 - **`associate_params_safe(elements, inst_to_gp_map, gp_ids)`** · **safe**  
-  - Associate instance parameters to GPs. Returns (count, logs).
+  - Associate instance parameters to GPs by name.
 
 ## graphics
 *Tags: collect, views | Deps: revit_api, ada_core*
@@ -160,6 +183,23 @@ _No functions found_
 - **`safe_get_doc_uidoc()`**  
   - Optional convenience: if __revit__ is missing for any reason,
 
+## scope
+*Tags: collect, params, selection, ui, units, views | Deps: revit_api, pyrevit, ada_core*
+
+- **`_big_buttons(title, options, message)`**  
+- **`_select_many(title, labels)`**  
+- **`dedupe(elems, doc)`**  
+- **`collect_in_project(doc, bic_or_bics, where_element_is_not_type)`**  
+  - Collect all elements for one or more BuiltInCategory values across the project.
+- **`collect_in_active_view(doc, uidoc, bic_or_bics, where_element_is_not_type)`**  
+- **`is_new_construction(e)`**  
+- **`group_by_host_type(doc, elements)`**  
+  - Group hostable elements (e.g., windows/doors) by their host's Type name.
+- **`group_by_param(elements, param_name)`**  
+  - Group elements by an instance parameter's displayed string value.
+- **`choose_scope(doc, uidoc, bic_or_bics, title=?, include_manual=?, include_current_selection=?, include_active_view=?, include_project=?, include_group_by_host_type=?, filter_new_construction_for_auto=?)`**  
+  - Generic scope chooser. Returns (elements, scope_label, meta).
+
 ## selection
 *Tags: selection | Deps: revit_api, ada_core*
 
@@ -181,6 +221,16 @@ _No functions found_
 
 - **`tag_element(doc, view, elem, symbol)`**  
 
+## templates
+*Tags: selection, ui | Deps: revit_api, ada_core*
+
+- **`resolve_roots()`**  
+  - Returns (templates_dir, projects_dir), considering env overrides.
+- **`legacy_timestamp()`**  
+  - MMDD_HHMM — matches your legacy unique suffix style.
+- **`build_prefix_from_template(tpl)`**  
+  - Produce a short, unique prefix from template data:
+
 ## text
 *Deps: ada_core*
 
@@ -193,14 +243,18 @@ _No functions found_
 - **`batched(doc, name, items, fn)`**  
 
 ## tx
-*Tags: units | Deps: revit_api, ada_core*
+*Tags: ui, units | Deps: revit_api, ada_core*
 
+- **`_apply_silent_warnings(t)`**  
+  - Attach the SilentWarnings preprocessor to a Transaction.
 - **`transact(doc, name)`**  
   - Usage:
+- **`subtransact(doc, name)`**  
+  - Alias of transact; useful for semantic nesting.
 - **`run_in_tx(doc, name, fn)`**  
   - Run a callable inside a transaction and return its result.
-- **`subtransact(doc, name)`**  
-  - Semantically separate nested scopes; same as transact.
+- **`group(doc, name)`**  
+  - Usage:
 
 ## txn
 *Tags: units | Deps: revit_api, ada_core*
@@ -215,20 +269,28 @@ _No functions found_
 - **`duplicate_type_with_name(orig_type, new_name)`**  
 
 ## ui
-*Tags: ui, units | Deps: revit_api, pyrevit, ada_bootstrap, ada_brandforms_v6*
+*Tags: ui, units | Deps: revit_api, pyrevit, ada_bootstrap, ada_brandforms_v6, ada_core*
 
+- **`_ensure_ada_ui_path()`**  
+- **`_backend()`**  
+  - Return a lightweight object with 'name' and a few callables:
 - **`_forms()`**  
+  - Kept for compatibility with older imports that expected a forms-like object.
 - **`alert(message, title)`**  
 - **`confirm(message, title)`**  
+  - Yes/No; returns bool.
 - **`choose_yes_no(message, title, yes, no)`**  
 - **`ask_string(prompt, default, title)`**  
-- **`_ada_v6_buttons(title, message, buttons)`**  
-- **`alert_v6(msg, title)`**  
-  - Themed alert preferred (v6-first).
-- **`confirm_v6(msg, title)`**  
-  - Themed Yes/No; returns bool. Never overrides existing confirm().
 - **`big_buttons(title, options, message, cancel)`**  
-  - Three-button style chooser.
+  - Return clicked label or None.
+- **`select_from_list(items, title, multiselect, name_attr)`**  
+  - Return one item (or list of items if multiselect=True).
+- **`ask_int(prompt, default, title)`**  
+  - Numeric input helper that wraps ask_string.
+- **`ask_float(prompt, default, title)`**  
+- **`alert_v6(msg, title)`**  
+  - Prefer v6 themed alert; gracefully falls back.
+- **`confirm_v6(msg, title)`**  
 
 ## ui_bulk
 *Tags: params, ui, units | Deps: revit_api*
@@ -238,16 +300,32 @@ _No functions found_
 - **`edit_parameters_bulk_winforms(template_data, sample_window, title)`**  
 
 ## units
-*Tags: gp, params, selection, units | Deps: revit_api, ada_core*
+*Tags: gp, params, selection, ui, units | Deps: revit_api, ada_core*
 
 - **`mm_to_ft(mm)`**  
+  - Millimetres → internal feet.
 - **`ft_to_mm(ft)`**  
+  - Internal feet → millimetres.
 - **`parse_float(text, default)`**  
 - **`is_zero_tol(a, b, tol)`**  
 - **`to_internal_length(value_mm)`**  
-  - Convenience alias for mm_to_ft with clearer intent.
+  - Alias for mm_to_ft (semantic clarity in call-sites).
 - **`to_display_mm(value_ft)`**  
-  - Alias for ft_to_mm; name mirrors intent in UI code.
+  - Alias for ft_to_mm (semantic clarity in call-sites).
+- **`deg_to_rad(deg)`**  
+- **`rad_to_deg(rad)`**  
+- **`to_internal(value, unit_tag)`**  
+  - Convert a UI/display value into Revit internal storage:
+- **`to_display(value_internal, unit_tag)`**  
+  - Convert Revit internal storage into a UI/display value.
+- **`equal_mm(a_mm, b_mm, tol_mm)`**  
+  - Tolerant compare in millimetres (default ±0.5 mm).
+- **`equal_ft(a_ft, b_ft, tol_mm)`**  
+  - Tolerant compare in internal feet (compare by ±tol_mm).
+- **`parse_length_mm(text, default_mm)`**  
+  - Parse a user-entered length string into millimetres.
+- **`format_mm(value_ft, dp)`**  
+  - Format internal feet as mm with dp decimals (default 0).
 - **`gp_spec_id_safe(kind, DB)`** · **safe**  
   - Resolve common spec kinds to ForgeTypeId across API variants.
 - **`create_or_find_gp_safe(doc, name, kind, default, group)`** · **safe**  
