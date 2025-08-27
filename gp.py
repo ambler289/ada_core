@@ -1,15 +1,15 @@
 # ada_core/gp.py — Global Parameter helpers (vNext-safe, CPython-friendly)
 # Backwards-compatible: existing functions keep their names & behavior.
 # Additive helpers only (won’t affect older scripts).
-
 from __future__ import annotations
+
 from typing import List, Dict, Any, Tuple, Optional
 
-# Revit API
-import clr
-clr.AddReference("RevitAPI")
+# Revit API (Python.NET)
 from Autodesk.Revit import DB  # type: ignore
 
+# Reuse unit converters
+from ada_core.units import mm_to_ft, ft_to_mm, deg_to_rad
 
 __all__ = [
     # existing API (kept)
@@ -28,7 +28,7 @@ __all__ = [
 # ─────────────────────────────────────────────────────────────────────────────
 # Compatibility helpers (ParameterType vs ForgeTypeId)
 # ─────────────────────────────────────────────────────────────────────────────
-def _has_spec_utils():
+def _has_spec_utils() -> bool:
     try:
         _ = DB.SpecTypeId.Number
         return True
@@ -40,6 +40,7 @@ def _coerce_spec(ptype_or_spec) -> Any:
     """
     Accept either a ForgeTypeId (preferred) or a legacy ParameterType and
     return a ForgeTypeId that works with GlobalParameter.Create on newer APIs.
+    On older APIs, returns the legacy type back.
     """
     # If caller already passed a ForgeTypeId, keep it.
     try:
@@ -50,7 +51,7 @@ def _coerce_spec(ptype_or_spec) -> Any:
 
     # Legacy ParameterType → best-effort map
     if not _has_spec_utils():
-        # Older API path: return the legacy type as-is; Create will likely accept it.
+        # Older API path: return the legacy type as-is; Create may accept it.
         return ptype_or_spec
 
     # Minimal mapping for common kinds
@@ -95,7 +96,7 @@ def _mk_value_container(value, hint_spec=None):
 def _find_gp_internal(doc, name) -> Optional[DB.GlobalParameter]:
     try:
         eid = DB.GlobalParametersManager.FindByName(doc, name)
-        if eid and eid != DB.ElementId.InvalidElementId:
+        if isinstance(eid, DB.ElementId) and eid != DB.ElementId.InvalidElementId:
             gp = doc.GetElement(eid)
             if gp and getattr(gp, "Name", None) == name:
                 return gp
@@ -167,7 +168,7 @@ def set_gp_value(doc,
                  value: Any,
                  ptype: Any = getattr(DB, "ParameterType", object) and DB.ParameterType.Text,
                  group: Any = DB.BuiltInParameterGroup.PG_DATA) -> DB.GlobalParameter:
-    """Ensure a GP then set its value. Returns the GP element."""
+    """Ensure a GP then set its value. Returns the GP element. (Requires active Transaction)."""
     gp, _ = ensure_gp(doc, name, ptype, group)
     try:
         DB.GlobalParametersManager.SetValue(doc, gp.Id, _mk_value_container(value))
@@ -183,16 +184,16 @@ def set_gp_value_unit(doc, name: str, unit_tag: str, value: Any) -> DB.GlobalPar
     """
     Convenience setter that handles simple unit tags:
       unit_tag in {"bool","mm","deg","text"}.
+    - "mm": caller provides mm; GP stores internal feet
+    - "deg": caller provides degrees; GP stores radians
     """
-    if unit_tag == "bool":
+    ut = (unit_tag or "").lower()
+    if ut == "bool":
         return set_gp_value(doc, name, bool(value), DB.ParameterType.YesNo, DB.BuiltInParameterGroup.PG_DATA)
-    if unit_tag == "mm":
-        # Caller provides mm; GP stores internal feet
-        val_ft = float(value) / 304.8
-        return set_gp_value(doc, name, float(val_ft), DB.ParameterType.Length, DB.BuiltInParameterGroup.PG_DATA)
-    if unit_tag == "deg":
-        import math
-        return set_gp_value(doc, name, float(math.radians(float(value))), DB.ParameterType.Angle, DB.BuiltInParameterGroup.PG_DATA)
+    if ut == "mm":
+        return set_gp_value(doc, name, float(mm_to_ft(float(value))), DB.ParameterType.Length, DB.BuiltInParameterGroup.PG_DATA)
+    if ut == "deg":
+        return set_gp_value(doc, name, float(deg_to_rad(float(value))), DB.ParameterType.Angle, DB.BuiltInParameterGroup.PG_DATA)
     # text/default
     return set_gp_value(doc, name, "" if value is None else str(value), DB.ParameterType.Text, DB.BuiltInParameterGroup.PG_DATA)
 
@@ -223,8 +224,9 @@ def get_gp_value(doc, name: str, default: Any = None) -> Any:
 def get_gp_value_typed(doc, name: str) -> Tuple[str, Any]:
     """
     Returns (unit_tag, value) with a light inference:
-      - ("bool", 0/1) for IntegerParameterValue when name suggests yes/no or value in {0,1}
-      - ("mm", float) for DoubleParameterValue (assumed length)
+      - ("bool", 0/1) for IntegerParameterValue when value in {0,1}
+      - ("int",  int) for other integer values
+      - ("mm", float) for DoubleParameterValue (assumed length; value in mm)
       - ("text", str) for StringParameterValue
       - ("eid", ElementId) otherwise
     """
@@ -243,7 +245,6 @@ def get_gp_value_typed(doc, name: str) -> Tuple[str, Any]:
     if tname == "IntegerParameterValue":
         try:
             v = pv.Value
-            # Treat 0/1 as bool-ish
             if v in (0, 1):
                 return ("bool", v)
             return ("int", v)
@@ -251,7 +252,7 @@ def get_gp_value_typed(doc, name: str) -> Tuple[str, Any]:
             return ("int", None)
     if tname == "DoubleParameterValue":
         try:
-            return ("mm", float(pv.Value) * 304.8)  # display as mm
+            return ("mm", ft_to_mm(float(pv.Value)))  # display as mm
         except Exception:
             return ("num", None)
     if tname == "StringParameterValue":

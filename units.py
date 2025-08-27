@@ -1,7 +1,6 @@
 # ada_core/units.py — vNext-safe units + tiny GP utilities
 # Backwards-compatible: existing functions keep behavior/signatures.
 # Additive helpers only (won’t break older scripts).
-
 from __future__ import annotations
 from typing import Any, Dict, Iterable, Optional, Tuple
 
@@ -21,6 +20,9 @@ except Exception:
     SpecTypeId = None  # type: ignore
     _HAS_NEW_UNITS = False
 
+# ---------------- Constants ----------------
+MM_PER_FT: float = 304.8
+FT_PER_MM: float = 1.0 / MM_PER_FT
 
 # ---------------- Core conversions (kept; behavior-compatible) ----------------
 def mm_to_ft(mm: float) -> float:
@@ -28,10 +30,10 @@ def mm_to_ft(mm: float) -> float:
     if _HAS_NEW_UNITS:
         return UnitUtils.ConvertToInternalUnits(float(mm), UnitTypeId.Millimeters)
     # Legacy fallback
-    if DisplayUnitType is not None:
+    if 'DisplayUnitType' in globals() and DisplayUnitType is not None:
         return UnitUtils.ConvertToInternalUnits(float(mm), DisplayUnitType.DUT_MILLIMETERS)
     # Last resort
-    return float(mm) / 304.8
+    return float(mm) * FT_PER_MM
 
 
 def ft_to_mm(ft: float) -> float:
@@ -39,10 +41,10 @@ def ft_to_mm(ft: float) -> float:
     if _HAS_NEW_UNITS:
         return UnitUtils.ConvertFromInternalUnits(float(ft), UnitTypeId.Millimeters)
     # Legacy fallback
-    if DisplayUnitType is not None:
+    if 'DisplayUnitType' in globals() and DisplayUnitType is not None:
         return UnitUtils.ConvertFromInternalUnits(float(ft), DisplayUnitType.DUT_MILLIMETERS)
     # Last resort
-    return float(ft) * 304.8
+    return float(ft) * MM_PER_FT
 
 
 def parse_float(text: Any, default: Optional[float] = None) -> Optional[float]:
@@ -78,6 +80,39 @@ def to_display_mm(value_ft: float) -> float:
 
 # ================= vNext-safe additions (append-only) ==================
 
+# ---- Math/utility helpers ----
+def clamp(x: float, lo: float, hi: float) -> float:
+    try:
+        xf = float(x)
+        return lo if xf < lo else hi if xf > hi else xf
+    except Exception:
+        return x
+
+def safe_float(x: Any, default: float = 0.0) -> float:
+    try:
+        return float(x)
+    except Exception:
+        return float(default)
+
+def round_mm(value_ft: float, step_mm: float = 1.0) -> float:
+    """Round a length in feet to the nearest *step_mm* in mm, returning mm."""
+    mm = ft_to_mm(value_ft)
+    if step_mm <= 0:
+        return mm
+    return round(mm / step_mm) * step_mm
+
+def floor_mm(value_ft: float, step_mm: float = 1.0) -> float:
+    mm = ft_to_mm(value_ft)
+    if step_mm <= 0:
+        return mm
+    return math.floor(mm / step_mm) * step_mm #type:ignore
+
+def ceil_mm(value_ft: float, step_mm: float = 1.0) -> float:
+    mm = ft_to_mm(value_ft)
+    if step_mm <= 0:
+        return mm
+    return math.ceil(mm / step_mm) * step_mm #type:ignore
+
 # ---- Angles & general converters ----
 def deg_to_rad(deg: float) -> float:
     import math
@@ -92,11 +127,15 @@ def rad_to_deg(rad: float) -> float:
 def to_internal(value: Any, unit_tag: str) -> Any:
     """
     Convert a UI/display value into Revit internal storage:
-      unit_tag in {"mm","deg","bool","text"}.
+      unit_tag in {"mm","cm","m","deg","bool","text"}.
     """
     ut = (unit_tag or "").lower()
     if ut == "mm":
         return mm_to_ft(float(value))
+    if ut == "cm":
+        return mm_to_ft(float(value) * 10.0)
+    if ut == "m":
+        return mm_to_ft(float(value) * 1000.0)
     if ut == "deg":
         return deg_to_rad(float(value))
     if ut == "bool":
@@ -109,6 +148,8 @@ def to_display(value_internal: Any, unit_tag: str) -> Any:
     """
     Convert Revit internal storage into a UI/display value.
       - "mm": returns float mm (0 decimals typical for head/sill)
+      - "cm": returns float centimetres
+      - "m": returns float metres
       - "deg": returns float degrees
       - "bool": returns 0/1
       - default: string
@@ -116,6 +157,10 @@ def to_display(value_internal: Any, unit_tag: str) -> Any:
     ut = (unit_tag or "").lower()
     if ut == "mm":
         return ft_to_mm(float(value_internal))
+    if ut == "cm":
+        return ft_to_mm(float(value_internal)) / 10.0
+    if ut == "m":
+        return ft_to_mm(float(value_internal)) / 1000.0
     if ut == "deg":
         return rad_to_deg(float(value_internal))
     if ut == "bool":
@@ -175,7 +220,7 @@ def parse_length_mm(text: Any, default_mm: Optional[float] = None) -> Optional[f
                 return float(tk[:-2]) * 10.0
             except Exception:
                 return default_mm
-        if tk.endswith("m"):
+        if tk.endswith("m") and not tk.endswith("mm"):
             try:
                 return float(tk[:-1]) * 1000.0
             except Exception:
@@ -204,14 +249,34 @@ def parse_length_mm(text: Any, default_mm: Optional[float] = None) -> Optional[f
 
 
 # ---- Formatting helpers ----
-def format_mm(value_ft: float, dp: int = 0) -> str:
-    """Format internal feet as mm with dp decimals (default 0)."""
+def format_mm(value_ft: float, dp: int = 0, thousands: bool = False) -> str:
+    """Format internal feet as mm with dp decimals (default 0).
+    Set thousands=True to include thousands separators.
+    """
     mm = ft_to_mm(value_ft)
-    fmt = "{:." + str(int(dp)) + "f}"
+    if thousands:
+        # Use locale-independent thousands with commas
+        fmt = "{:,." + str(int(dp)) + "f}"
+    else:
+        fmt = "{:." + str(int(dp)) + "f}"
     return fmt.format(mm)
 
+def format_length(value_ft: float, style: str = "mm", dp: int = 0) -> str:
+    """Format length in different metric styles for UI, using internal feet as input."""
+    s = style.lower() if style else "mm"
+    if s == "mm":
+        return format_mm(value_ft, dp=dp)
+    if s == "cm":
+        return format_mm(value_ft, dp=max(0, dp))[:-3]  # rough: drop ' mm', keep number semantics
+    if s == "m":
+        m = ft_to_mm(value_ft) / 1000.0
+        fmt = "{:." + str(int(dp)) + "f}"
+        return fmt.format(m)
+    return format_mm(value_ft, dp=dp)
 
 # ---------------- Tiny GP helpers (kept & made sturdier) ----------------
+# NOTE: In a future refactor these may move to ada_core.gp;
+# we keep them here for backward compatibility and re-export from __all__.
 def gp_spec_id_safe(kind: str, DB) -> Any:
     """Resolve common spec kinds to ForgeTypeId across API variants."""
     try:
@@ -312,12 +377,15 @@ def associate_params_safe(elements: Iterable, inst_to_gp_map: Dict[str, str], gp
 
 
 __all__ = [
+    # constants
+    "MM_PER_FT", "FT_PER_MM",
     # core / legacy surface
     "mm_to_ft", "ft_to_mm", "parse_float", "is_zero_tol",
     "to_internal_length", "to_display_mm",
     # new general helpers
+    "clamp", "safe_float", "round_mm", "floor_mm", "ceil_mm",
     "deg_to_rad", "rad_to_deg", "to_internal", "to_display",
-    "equal_mm", "equal_ft", "parse_length_mm", "format_mm",
+    "equal_mm", "equal_ft", "parse_length_mm", "format_mm", "format_length",
     # safe GP utilities (kept)
     "gp_spec_id_safe", "create_or_find_gp_safe", "create_legacy_gp_from_param_safe", "associate_params_safe",
 ]
