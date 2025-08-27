@@ -517,7 +517,7 @@
           "name": "set_gp_value",
           "public": true,
           "signature": "set_gp_value(doc, name, value, ptype, group)",
-          "summary": "Ensure a GP then set its value. Returns the GP element.",
+          "summary": "Ensure a GP then set its value. Returns the GP element. (Requires active Transaction).",
           "safe": false,
           "args": [
             "doc",
@@ -737,6 +737,64 @@
       ]
     },
     {
+      "module": "layout",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\layout.py",
+      "functions": [
+        {
+          "name": "_coerce_anchor",
+          "public": false,
+          "signature": "_coerce_anchor(val, enum_cls, default)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "val",
+            "enum_cls",
+            "default"
+          ]
+        },
+        {
+          "name": "_sorted_box",
+          "public": false,
+          "signature": "_sorted_box(p1, p2)",
+          "summary": "Return (min_x, max_x, min_y, max_y) in sheet feet coords.",
+          "safe": false,
+          "args": [
+            "p1",
+            "p2"
+          ]
+        },
+        {
+          "name": "grid_positions_for_area",
+          "public": true,
+          "signature": "grid_positions_for_area(count, p1, p2, sizes_mm, gap_x_mm, gap_y_mm, max_rows, max_per_row, h_anchor, v_anchor, min_cell_w_mm, min_cell_h_mm)",
+          "summary": "Compute grid positions (sheet coordinates) for placing 'count' view centers inside",
+          "safe": false,
+          "args": [
+            "count",
+            "p1",
+            "p2",
+            "sizes_mm",
+            "gap_x_mm",
+            "gap_y_mm",
+            "max_rows",
+            "max_per_row",
+            "h_anchor",
+            "v_anchor",
+            "min_cell_w_mm",
+            "min_cell_h_mm"
+          ]
+        }
+      ],
+      "tags": [
+        "units",
+        "views"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
       "module": "levels",
       "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\levels.py",
       "functions": [
@@ -911,6 +969,203 @@
           "name": "has_parameter_value",
           "public": true,
           "signature": "has_parameter_value(param)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param"
+          ]
+        },
+        {
+          "name": "resolve_param",
+          "public": true,
+          "signature": "resolve_param(element, candidates, DB)",
+          "summary": "Try to resolve a parameter on element using a list of candidates.",
+          "safe": false,
+          "args": [
+            "element",
+            "candidates",
+            "DB"
+          ]
+        },
+        {
+          "name": "resolve_any_param",
+          "public": true,
+          "signature": "resolve_any_param(elements, candidates, DB)",
+          "summary": "Return the first (element,param) where the param resolves, else (None,None).",
+          "safe": false,
+          "args": [
+            "elements",
+            "candidates",
+            "DB"
+          ]
+        },
+        {
+          "name": "try_param_str",
+          "public": true,
+          "signature": "try_param_str(param)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param"
+          ]
+        },
+        {
+          "name": "try_param_int",
+          "public": true,
+          "signature": "try_param_int(param)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param"
+          ]
+        },
+        {
+          "name": "try_param_double_internal",
+          "public": true,
+          "signature": "try_param_double_internal(param)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param"
+          ]
+        },
+        {
+          "name": "try_param_length_mm",
+          "public": true,
+          "signature": "try_param_length_mm(param)",
+          "summary": "Return parameter value in millimetres if this is a length-like parameter.",
+          "safe": false,
+          "args": [
+            "param"
+          ]
+        },
+        {
+          "name": "set_param_string",
+          "public": true,
+          "signature": "set_param_string(param, text)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "text"
+          ]
+        },
+        {
+          "name": "set_param_yesno",
+          "public": true,
+          "signature": "set_param_yesno(param, value_bool)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "value_bool"
+          ]
+        },
+        {
+          "name": "set_param_int",
+          "public": true,
+          "signature": "set_param_int(param, value)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "value"
+          ]
+        },
+        {
+          "name": "set_param_double_internal",
+          "public": true,
+          "signature": "set_param_double_internal(param, value)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "value"
+          ]
+        },
+        {
+          "name": "set_param_length_mm",
+          "public": true,
+          "signature": "set_param_length_mm(param, value_mm)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "value_mm"
+          ]
+        },
+        {
+          "name": "set_yesno_by_names",
+          "public": true,
+          "signature": "set_yesno_by_names(elem, names, value_bool)",
+          "summary": "Try a list of parameter names on an element/type; returns True if any were set.",
+          "safe": false,
+          "args": [
+            "elem",
+            "names",
+            "value_bool"
+          ]
+        },
+        {
+          "name": "set_length_mm_by_names",
+          "public": true,
+          "signature": "set_length_mm_by_names(elem, names, value_mm)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "elem",
+            "names",
+            "value_mm"
+          ]
+        },
+        {
+          "name": "ensure_param_length_mm",
+          "public": true,
+          "signature": "ensure_param_length_mm(param, value_mm, tol_mm)",
+          "summary": "Set length param only if different by > tol_mm.",
+          "safe": false,
+          "args": [
+            "param",
+            "value_mm",
+            "tol_mm"
+          ]
+        },
+        {
+          "name": "ensure_param_int",
+          "public": true,
+          "signature": "ensure_param_int(param, value)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "value"
+          ]
+        },
+        {
+          "name": "ensure_param_yesno",
+          "public": true,
+          "signature": "ensure_param_yesno(param, value_bool)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param",
+            "value_bool"
+          ]
+        },
+        {
+          "name": "param_storage_name",
+          "public": true,
+          "signature": "param_storage_name(param)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "param"
+          ]
+        },
+        {
+          "name": "is_param_readonly",
+          "public": true,
+          "signature": "is_param_readonly(param)",
           "summary": "",
           "safe": false,
           "args": [
@@ -1237,6 +1492,162 @@
       ],
       "tags": [
         "selection"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
+      "module": "sheets",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\sheets.py",
+      "functions": [
+        {
+          "name": "get_titleblock_instance",
+          "public": true,
+          "signature": "get_titleblock_instance(doc, sheet)",
+          "summary": "Return the first titleblock instance placed on a sheet (if any).",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet"
+          ]
+        },
+        {
+          "name": "get_sheet_size_mm",
+          "public": true,
+          "signature": "get_sheet_size_mm(sheet)",
+          "summary": "Sheet size (width_mm, height_mm) from sheet parameters.",
+          "safe": false,
+          "args": [
+            "sheet"
+          ]
+        },
+        {
+          "name": "_tb_type_param_mm",
+          "public": false,
+          "signature": "_tb_type_param_mm(tb_type, name)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "tb_type",
+            "name"
+          ]
+        },
+        {
+          "name": "_resolve_common_margins_mm",
+          "public": false,
+          "signature": "_resolve_common_margins_mm(tb_type)",
+          "summary": "Probe common custom parameters on the titleblock TYPE to infer margins.",
+          "safe": false,
+          "args": [
+            "tb_type"
+          ]
+        },
+        {
+          "name": "sheet_paper_and_margins_mm",
+          "public": true,
+          "signature": "sheet_paper_and_margins_mm(doc, sheet, overrides)",
+          "summary": "Return a dictionary with paper size and margins (mm):",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "overrides"
+          ]
+        },
+        {
+          "name": "iso_class_from_mm",
+          "public": true,
+          "signature": "iso_class_from_mm(w_mm, h_mm, tol)",
+          "summary": "Classify A-series size by dims (\u00b1tol mm). Returns 'A1'/'A2'/'A3'/'CUSTOM'.",
+          "safe": false,
+          "args": [
+            "w_mm",
+            "h_mm",
+            "tol"
+          ]
+        },
+        {
+          "name": "sheet_capacity",
+          "public": true,
+          "signature": "sheet_capacity(doc, sheet, base_a3_cap, cap_limit)",
+          "summary": "Heuristic capacity (how many similarly sized small viewports fit).",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "base_a3_cap",
+            "cap_limit"
+          ]
+        },
+        {
+          "name": "_tb_bbox_on_sheet",
+          "public": false,
+          "signature": "_tb_bbox_on_sheet(doc, sheet)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet"
+          ]
+        },
+        {
+          "name": "area_from_margins",
+          "public": true,
+          "signature": "area_from_margins(doc, sheet, margins_mm)",
+          "summary": "Compute a placement rectangle (top-left XYZ, bottom-right XYZ) inside titleblock bbox,",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "margins_mm"
+          ]
+        },
+        {
+          "name": "clamp_area_to_margins",
+          "public": true,
+          "signature": "clamp_area_to_margins(doc, sheet, p1, p2, margins_mm)",
+          "summary": "Clamp any picked rectangle to live within titleblock bbox minus margins.",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "p1",
+            "p2",
+            "margins_mm"
+          ]
+        },
+        {
+          "name": "find_sheets_by_title",
+          "public": true,
+          "signature": "find_sheets_by_title(doc, pattern, regex)",
+          "summary": "Yield sheets whose Title matches pattern.",
+          "safe": false,
+          "args": [
+            "doc",
+            "pattern",
+            "regex"
+          ]
+        },
+        {
+          "name": "list_sheet_viewport_viewids",
+          "public": true,
+          "signature": "list_sheet_viewport_viewids(doc, sheet)",
+          "summary": "Return the ViewIds for all Viewports placed on a sheet.",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "params",
+        "selection",
+        "units",
+        "views"
       ],
       "deps": [
         "revit_api",
@@ -1760,6 +2171,62 @@
           ]
         },
         {
+          "name": "clamp",
+          "public": true,
+          "signature": "clamp(x, lo, hi)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "x",
+            "lo",
+            "hi"
+          ]
+        },
+        {
+          "name": "safe_float",
+          "public": true,
+          "signature": "safe_float(x, default)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "x",
+            "default"
+          ]
+        },
+        {
+          "name": "round_mm",
+          "public": true,
+          "signature": "round_mm(value_ft, step_mm)",
+          "summary": "Round a length in feet to the nearest *step_mm* in mm, returning mm.",
+          "safe": false,
+          "args": [
+            "value_ft",
+            "step_mm"
+          ]
+        },
+        {
+          "name": "floor_mm",
+          "public": true,
+          "signature": "floor_mm(value_ft, step_mm)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "value_ft",
+            "step_mm"
+          ]
+        },
+        {
+          "name": "ceil_mm",
+          "public": true,
+          "signature": "ceil_mm(value_ft, step_mm)",
+          "summary": "",
+          "safe": false,
+          "args": [
+            "value_ft",
+            "step_mm"
+          ]
+        },
+        {
           "name": "deg_to_rad",
           "public": true,
           "signature": "deg_to_rad(deg)",
@@ -1839,11 +2306,24 @@
         {
           "name": "format_mm",
           "public": true,
-          "signature": "format_mm(value_ft, dp)",
+          "signature": "format_mm(value_ft, dp, thousands)",
           "summary": "Format internal feet as mm with dp decimals (default 0).",
           "safe": false,
           "args": [
             "value_ft",
+            "dp",
+            "thousands"
+          ]
+        },
+        {
+          "name": "format_length",
+          "public": true,
+          "signature": "format_length(value_ft, style, dp)",
+          "summary": "Format length in different metric styles for UI, using internal feet as input.",
+          "safe": false,
+          "args": [
+            "value_ft",
+            "style",
             "dp"
           ]
         },
@@ -1910,6 +2390,138 @@
       ]
     },
     {
+      "module": "viewports",
+      "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\viewports.py",
+      "functions": [
+        {
+          "name": "get_viewports_on_sheet",
+          "public": true,
+          "signature": "get_viewports_on_sheet(doc, sheet)",
+          "summary": "Return all Viewport instances placed on a given sheet.",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet"
+          ]
+        },
+        {
+          "name": "find_viewport_type_by_name",
+          "public": true,
+          "signature": "find_viewport_type_by_name(doc, name_exact)",
+          "summary": "Resolve a viewport type by its Name. Common case is 'No Title'.",
+          "safe": false,
+          "args": [
+            "doc",
+            "name_exact"
+          ]
+        },
+        {
+          "name": "any_viewport_type",
+          "public": true,
+          "signature": "any_viewport_type(doc)",
+          "summary": "Return some valid viewport type (first found), or None.",
+          "safe": false,
+          "args": [
+            "doc"
+          ]
+        },
+        {
+          "name": "can_add_view",
+          "public": true,
+          "signature": "can_add_view(doc, sheet, view)",
+          "summary": "Wrapper for Viewport.CanAddViewToSheet with guards.",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "view"
+          ]
+        },
+        {
+          "name": "add_views_at_positions",
+          "public": true,
+          "signature": "add_views_at_positions(doc, sheet, views, positions, vptype, post_create)",
+          "summary": "Adds each view to the sheet at the matching position.",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "views",
+            "positions",
+            "vptype",
+            "post_create"
+          ]
+        },
+        {
+          "name": "change_all_viewports_type_on_sheet",
+          "public": true,
+          "signature": "change_all_viewports_type_on_sheet(doc, sheet, vptype)",
+          "summary": "Change the type of every viewport on a sheet; returns count changed.",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "vptype"
+          ]
+        },
+        {
+          "name": "set_all_viewports_no_title",
+          "public": true,
+          "signature": "set_all_viewports_no_title(doc, sheet, name_exact)",
+          "summary": "Convenience: find type named 'No Title' (or provided string) and apply to all viewports.",
+          "safe": false,
+          "args": [
+            "doc",
+            "sheet",
+            "name_exact"
+          ]
+        },
+        {
+          "name": "viewport_box_center",
+          "public": true,
+          "signature": "viewport_box_center(vp)",
+          "summary": "Return the viewport box center if available (sheet coords).",
+          "safe": false,
+          "args": [
+            "vp"
+          ]
+        },
+        {
+          "name": "align_rows_by_y",
+          "public": true,
+          "signature": "align_rows_by_y(sheet, tolerance_ft)",
+          "summary": "Aligns viewports on a sheet into rows by snapping Y to row-average for clusters.",
+          "safe": false,
+          "args": [
+            "sheet",
+            "tolerance_ft"
+          ]
+        },
+        {
+          "name": "nudge_all_viewports",
+          "public": true,
+          "signature": "nudge_all_viewports(sheet, dx_ft, dy_ft)",
+          "summary": "Move every viewport by the same delta in sheet coordinates.",
+          "safe": false,
+          "args": [
+            "sheet",
+            "dx_ft",
+            "dy_ft"
+          ]
+        }
+      ],
+      "tags": [
+        "collect",
+        "params",
+        "units",
+        "views"
+      ],
+      "deps": [
+        "revit_api",
+        "ada_core"
+      ]
+    },
+    {
       "module": "views",
       "path": "C:\\Users\\jon\\AppData\\Roaming\\pyRevit\\Extensions\\ADa-Manage.extension\\lib\\ada_core\\views.py",
       "functions": [
@@ -1950,7 +2562,7 @@
           "name": "windows",
           "public": true,
           "signature": "windows(doc, only_new, exclude_skylights)",
-          "summary": "",
+          "summary": "Return window instances with optional filters.",
           "safe": false,
           "args": [
             "doc",
@@ -1983,7 +2595,7 @@
           "name": "create_window_section",
           "public": true,
           "signature": "create_window_section(doc, window, vft, taken, offset_ft=?, interior_ft=?, exterior_margin_ft=?, base_offset_ft=?, extra_headroom_ft=?, head_ft=?)",
-          "summary": "",
+          "summary": "Create a section aligned to a window's facing orientation with a parametric crop box.",
           "safe": false,
           "args": [
             "doc",
@@ -2003,16 +2615,75 @@
             "name",
             "fallback_first"
           ]
+        },
+        {
+          "name": "collect_placed_view_ids",
+          "public": true,
+          "signature": "collect_placed_view_ids(doc)",
+          "summary": "Return set of View.Id that are already placed on any sheet.",
+          "safe": false,
+          "args": [
+            "doc"
+          ]
+        },
+        {
+          "name": "named_view_predicate",
+          "public": true,
+          "signature": "named_view_predicate(suffix_regex, allowed_types)",
+          "summary": "Build a predicate: non-template, allowed type, name matches regex, not starting with 'WORK'.",
+          "safe": false,
+          "args": [
+            "suffix_regex",
+            "allowed_types"
+          ]
+        },
+        {
+          "name": "filter_unplaced_views",
+          "public": true,
+          "signature": "filter_unplaced_views(doc, view_predicate)",
+          "summary": "Return sorted list of views passing predicate and not yet placed (numeric-aware sort).",
+          "safe": false,
+          "args": [
+            "doc",
+            "view_predicate"
+          ]
+        },
+        {
+          "name": "estimate_paper_size_mm",
+          "public": true,
+          "signature": "estimate_paper_size_mm(view, pad_mm, default_w_mm, default_h_mm)",
+          "summary": "Estimate viewport paper size from crop box and view.Scale; returns (w_mm, h_mm).",
+          "safe": false,
+          "args": [
+            "view",
+            "pad_mm",
+            "default_w_mm",
+            "default_h_mm"
+          ]
+        },
+        {
+          "name": "hide_level_bubbles",
+          "public": true,
+          "signature": "hide_level_bubbles(view, doc)",
+          "summary": "Best-effort hide level bubbles in a given view.",
+          "safe": false,
+          "args": [
+            "view",
+            "doc"
+          ]
         }
       ],
       "tags": [
         "collect",
         "params",
+        "selection",
         "ui",
+        "units",
         "views"
       ],
       "deps": [
-        "revit_api"
+        "revit_api",
+        "ada_core"
       ]
     },
     {
