@@ -17,6 +17,13 @@ import sys
 
 UI_SOURCE = "console"   # updated after backend discovery
 
+# Route big-buttons via ada_core shim
+try:
+    from ada_core import bigbuttons as BB
+except Exception:
+    BB = None
+
+
 
 # --- internal: try to make ada_brandforms_v6 importable if ADA_UI_DIR is given
 def _ensure_ada_ui_path():
@@ -274,8 +281,14 @@ def ask_string(prompt, default=None, title=None):
 
 # --- safe new helpers (non-breaking) -----------------------------------------
 def big_buttons(title, options, message=None, cancel=True):
-    """Return clicked label or None."""
-    return _backend_obj.buttons(title, message or "", list(options or []), cancel=bool(cancel))
+    """Return clicked label or None (ADa big-buttons; no search)."""
+    if BB is not None:
+        try:
+            return BB.choose(options, title=title, message=message or "")
+        except Exception:
+            pass
+    # Fallback to existing backend
+    return _backend_obj.buttons(title, message or "", list(options or []), bool(cancel))
 
 
 def select_from_list(items, title="Select", multiselect=False, name_attr=None):
@@ -336,3 +349,14 @@ def confirm_v6(msg, title="Confirm"):
     if btn in ("Yes", "No"):
         return btn == "Yes"
     return confirm(msg, title)
+
+def big_buttons_multi(title, options, message=None, include_all=True):
+    """Return list of clicked labels. Uses ADa big-buttons multi-select with optional 'All'."""
+    if BB is not None:
+        try:
+            return list(BB.choose_multi(options, title=title, message=message or "", include_all=bool(include_all)))
+        except Exception:
+            pass
+    # Fallback: degrade to single-select via big_buttons (no native multiselect in legacy backends)
+    sel = big_buttons(title, options, message=message)
+    return [sel] if sel else []
