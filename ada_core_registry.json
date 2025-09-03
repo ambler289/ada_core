@@ -1974,7 +1974,7 @@
           "name": "big_buttons",
           "public": true,
           "signature": "big_buttons(title, options, message, cancel)",
-          "summary": "Return clicked label or None.",
+          "summary": "Return clicked label or None (ADa big-buttons; no search).",
           "safe": false,
           "args": [
             "title",
@@ -2040,6 +2040,19 @@
           "args": [
             "msg",
             "title"
+          ]
+        },
+        {
+          "name": "big_buttons_multi",
+          "public": true,
+          "signature": "big_buttons_multi(title, options, message, include_all)",
+          "summary": "Return list of clicked labels. Uses ADa big-buttons multi-select with optional 'All'.",
+          "safe": false,
+          "args": [
+            "title",
+            "options",
+            "message",
+            "include_all"
           ]
         }
       ],

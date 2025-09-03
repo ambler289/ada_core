@@ -340,7 +340,7 @@ _No functions found_
 - **`choose_yes_no(message, title, yes, no)`**  
 - **`ask_string(prompt, default, title)`**  
 - **`big_buttons(title, options, message, cancel)`**  
-  - Return clicked label or None.
+  - Return clicked label or None (ADa big-buttons; no search).
 - **`select_from_list(items, title, multiselect, name_attr)`**  
   - Return one item (or list of items if multiselect=True).
 - **`ask_int(prompt, default, title)`**  
@@ -349,6 +349,8 @@ _No functions found_
 - **`alert_v6(msg, title)`**  
   - Prefer v6 themed alert; gracefully falls back.
 - **`confirm_v6(msg, title)`**  
+- **`big_buttons_multi(title, options, message, include_all)`**  
+  - Return list of clicked labels. Uses ADa big-buttons multi-select with optional 'All'.
 
 ## ui_bulk
 *Tags: params, ui, units | Deps: revit_api*
