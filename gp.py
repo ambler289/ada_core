@@ -1,456 +1,208 @@
-# ada_core/gp.py — Global Parameter helpers (vNext-safe, CPython-friendly)
-# Backwards-compatible: existing functions keep their names & behavior.
-# Additive helpers only (won’t affect older scripts).
+
+# -*- coding: utf-8 -*-
+"""ada_core.gp (2026-safe)
+Global Parameter helpers compatible with Revit 2024–2026+ (CPython3).
+- Avoids import-time references to DB.ParameterType
+- Uses SpecTypeId when available (2021+), falls back gracefully
+- No default args that touch deprecated enums
+"""
 from __future__ import annotations
 
-from typing import List, Dict, Any, Tuple, Optional
-
-# Revit API (Python.NET)
+from typing import Any, Tuple, Optional
 from Autodesk.Revit import DB  # type: ignore
 
-# Reuse unit converters
-from ada_core.units import mm_to_ft, ft_to_mm, deg_to_rad
+# ------------------------------------------------------------
+# Version/feature detection
+# ------------------------------------------------------------
+_HAS_SPEC = hasattr(DB, "SpecTypeId")
+_BOOL_PATH = ("Boolean", "YesNo")  # SpecTypeId.Boolean.YesNo
 
-__all__ = [
-    # existing API (kept)
-    "ensure_gp", "set_gp_value", "get_gp_value",
-    "map_global_parameters_by_name",
-    "detect_global_parameter_associations",
-    "dissociate_global_parameter_safely",
-    "bulk_dissociate_global_parameters",
-    # additive helpers (safe)
-    "find_gp", "ensure_gp_by_sample",
-    "set_gp_value_unit", "get_gp_value_typed",
-    "associate_params_safe", "collect_gps_with_prefix",
-]
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Compatibility helpers (ParameterType vs ForgeTypeId)
-# ─────────────────────────────────────────────────────────────────────────────
-def _has_spec_utils() -> bool:
-    try:
-        _ = DB.SpecTypeId.Number
-        return True
-    except Exception:
-        return False
-
-
-def _coerce_spec(ptype_or_spec) -> Any:
-    """
-    Accept either a ForgeTypeId (preferred) or a legacy ParameterType and
-    return a ForgeTypeId that works with GlobalParameter.Create on newer APIs.
-    On older APIs, returns the legacy type back.
-    """
-    # If caller already passed a ForgeTypeId, keep it.
-    try:
-        if hasattr(ptype_or_spec, "TypeId"):   # ForgeTypeId-ish
-            return ptype_or_spec
-    except Exception:
-        pass
-
-    # Legacy ParameterType → best-effort map
-    if not _has_spec_utils():
-        # Older API path: return the legacy type as-is; Create may accept it.
-        return ptype_or_spec
-
-    # Minimal mapping for common kinds
-    try:
-        pt = ptype_or_spec
-        if pt == getattr(DB.ParameterType, "Length", None):
-            return DB.SpecTypeId.Length
-        if pt == getattr(DB.ParameterType, "YesNo", None):
-            return DB.SpecTypeId.Boolean.YesNo
-        if pt == getattr(DB.ParameterType, "Angle", None):
-            return DB.SpecTypeId.Angle
-        if pt in (getattr(DB.ParameterType, "Integer", None),
-                  getattr(DB.ParameterType, "Number",  None)):
-            return DB.SpecTypeId.Number
-        # default fallback
+# ------------------------------------------------------------
+# Spec helpers (lazy; safe on all versions)
+# ------------------------------------------------------------
+def _spec_text():
+    if _HAS_SPEC:
         return DB.SpecTypeId.String
-    except Exception:
-        return DB.SpecTypeId.String
+    return getattr(DB, "ParameterType").Text  # pragma: no cover
 
+def _spec_yesno():
+    if _HAS_SPEC:
+        return getattr(DB.SpecTypeId, _BOOL_PATH[0]).YesNo
+    return getattr(DB, "ParameterType").YesNo  # pragma: no cover
 
-def _mk_value_container(value, hint_spec=None):
-    """Return correct DB.*ParameterValue for a python value."""
-    # Boolean/YesNo
-    if isinstance(value, bool):
-        v = DB.IntegerParameterValue(); v.Value = 1 if value else 0; return v
-    # Int
-    if isinstance(value, int) and not isinstance(value, bool):
-        v = DB.IntegerParameterValue(); v.Value = int(value); return v
-    # Float → double
-    if isinstance(value, float):
-        v = DB.DoubleParameterValue(); v.Value = float(value); return v
-    # ElementId (pass-through)
-    if isinstance(value, DB.ElementId):
-        v = DB.ElementIdParameterValue(); v.Value = value; return v
-    # String (or None)
-    v = DB.StringParameterValue(); v.Value = "" if value is None else str(value); return v
+def _spec_length():
+    if _HAS_SPEC:
+        return DB.SpecTypeId.Length
+    return getattr(DB, "ParameterType").Length  # pragma: no cover
 
+def _spec_angle():
+    if _HAS_SPEC:
+        return DB.SpecTypeId.Angle
+    return getattr(DB, "ParameterType").Angle  # pragma: no cover
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Find & ensure
-# ─────────────────────────────────────────────────────────────────────────────
-def _find_gp_internal(doc, name) -> Optional[DB.GlobalParameter]:
+def _spec_number():
+    if _HAS_SPEC:
+        return DB.SpecTypeId.Number
+    return getattr(DB, "ParameterType").Number  # pragma: no cover
+
+# ------------------------------------------------------------
+# Coercion utilities
+# ------------------------------------------------------------
+def _coerce_spec(ptype: Any):
+    """Return a DB.ForgeTypeId for the desired data type.
+    Accepts: ForgeTypeId (pass-through), ParameterType enums (legacy),
+    strings like 'text','yesno','length','angle','number'.
+    """
+    # Already a ForgeTypeId (SpecTypeId or DataTypeId)
+    if isinstance(ptype, DB.ForgeTypeId):
+        return ptype
+
+    # Strings (case-insensitive)
+    if isinstance(ptype, str):
+        key = ptype.strip().lower()
+        if key in ("text", "string", "str"):
+            return _spec_text()
+        if key in ("yesno", "bool", "boolean"):
+            return _spec_yesno()
+        if key in ("len", "length", "mm", "m", "ft", "feet", "meter", "metre"):
+            return _spec_length()
+        if key in ("ang", "angle", "deg", "degree", "degrees"):
+            return _spec_angle()
+        if key in ("num", "number", "double", "float", "real"):
+            return _spec_number()
+
+    # Legacy ParameterType enums (only exist pre-2026)
+    PT = getattr(DB, "ParameterType", None)
+    if PT is not None:
+        try:
+            # name like "Text", "YesNo", etc.
+            enum_name = str(ptype)
+            if enum_name.startswith("ParameterType."):
+                enum_name = enum_name.split(".", 1)[-1]
+            enum_name = enum_name.lower()
+            mapping = {
+                "text": _spec_text,
+                "yesno": _spec_yesno,
+                "length": _spec_length,
+                "angle": _spec_angle,
+                "number": _spec_number,
+                "integer": _spec_number,
+            }
+            if enum_name in mapping:
+                return mapping[enum_name]()
+        except Exception:
+            pass
+
+    # Fallback to text spec
+    return _spec_text()
+
+# ------------------------------------------------------------
+# ParameterValue construction
+# ------------------------------------------------------------
+def _make_value(spec: DB.ForgeTypeId, value: Any) -> DB.ParameterValue:
+    """Create the appropriate DB.ParameterValue for a given spec + python value."""
+    # Boolean
     try:
-        eid = DB.GlobalParametersManager.FindByName(doc, name)
-        if isinstance(eid, DB.ElementId) and eid != DB.ElementId.InvalidElementId:
-            gp = doc.GetElement(eid)
-            if gp and getattr(gp, "Name", None) == name:
-                return gp
+        bool_id = getattr(DB.SpecTypeId, _BOOL_PATH[0]).YesNo if _HAS_SPEC else None
     except Exception:
-        pass
-    # Fallback scan (rarely needed but safe)
-    try:
-        col = DB.FilteredElementCollector(doc).OfClass(DB.GlobalParameter)
-        for gp in col:
-            if getattr(gp, "Name", None) == name:
-                return gp
-    except Exception:
-        pass
+        bool_id = None
+
+    if _HAS_SPEC:
+        if spec == DB.SpecTypeId.String:
+            return DB.StringParameterValue(str(value) if value is not None else "")
+        if bool_id is not None and spec == bool_id:
+            return DB.IntegerParameterValue(1 if bool(value) else 0)
+        # numeric-like specs → Double
+        if spec in (DB.SpecTypeId.Length, DB.SpecTypeId.Angle, DB.SpecTypeId.Number):
+            try:
+                return DB.DoubleParameterValue(float(value))
+            except Exception:
+                return DB.DoubleParameterValue(0.0)
+        # default to string
+        return DB.StringParameterValue(str(value) if value is not None else "")
+    else:
+        # Legacy path (unlikely on 2026, here for completeness)
+        PT = DB.ParameterType
+        if spec == PT.Text:
+            return DB.StringParameterValue(str(value) if value is not None else "")
+        if spec == PT.YesNo:
+            return DB.IntegerParameterValue(1 if bool(value) else 0)
+        # double-ish
+        try:
+            return DB.DoubleParameterValue(float(value))
+        except Exception:
+            return DB.DoubleParameterValue(0.0)
+
+# ------------------------------------------------------------
+# Core find/create helpers
+# ------------------------------------------------------------
+def _find_gp(doc: DB.Document, name: str) -> Optional[DB.GlobalParameter]:
+    it = DB.FilteredElementCollector(doc).OfClass(DB.GlobalParameter)
+    for gp in it:  # type: ignore
+        if gp.Name == name:
+            return gp  # type: ignore[return-value]
     return None
 
-
-def find_gp(doc, name) -> Optional[DB.GlobalParameter]:
-    """Public finder (safe)."""
-    return _find_gp_internal(doc, name)
-
-
-def ensure_gp(doc,
-              name: str,
-              ptype: Any = getattr(DB, "ParameterType", object) and DB.ParameterType.Text,
-              group: Any = DB.BuiltInParameterGroup.PG_DATA) -> Tuple[DB.GlobalParameter, bool]:
+def ensure_gp(doc: DB.Document, name: str, ptype: Any = None,
+              group: DB.BuiltInParameterGroup = DB.BuiltInParameterGroup.PG_DATA
+              ) -> Tuple[DB.GlobalParameter, bool]:
+    """Get or create a Global Parameter.
+    Returns (gp, created).
+    NOTE: Caller is responsible for wrapping in a Transaction.
     """
-    Find a Global Parameter by name or create it.
-    ptype can be legacy ParameterType or a ForgeTypeId; both accepted.
-    Returns (gp, created_bool).
-    """
-    gp = _find_gp_internal(doc, name)
+    gp = _find_gp(doc, name)
     if gp:
+        # Ensure correct group if mismatch
+        try:
+            if gp.GetGroup() != group:
+                gp.SetGroup(group)
+        except Exception:
+            pass
         return gp, False
 
-    # Create with best-effort type coercion
+    spec = _coerce_spec(ptype if ptype is not None else _spec_text())
+    gp = DB.GlobalParameter.Create(doc, name, spec)
     try:
-        spec = _coerce_spec(ptype)
-        gp = DB.GlobalParameter.Create(doc, name, spec)
-    except Exception:
-        # Legacy fallback: try with the raw ptype (older APIs)
-        gp = DB.GlobalParameter.Create(doc, name, ptype)
-
-    try:
-        if group is not None:
-            gp.GetDefinition().ParameterGroup = group
+        gp.SetGroup(group)
     except Exception:
         pass
     return gp, True
 
-
-def ensure_gp_by_sample(doc, name: str, sample_param) -> Tuple[Optional[DB.GlobalParameter], bool]:
-    """Create a GP using the sample parameter's data type. Returns (gp, created_bool)."""
-    gp = _find_gp_internal(doc, name)
-    if gp:
-        return gp, False
-    try:
-        ftid = sample_param.Definition.GetDataType()
-        gp = DB.GlobalParameter.Create(doc, name, ftid)
-        return gp, True
-    except Exception:
-        return None, False
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Get / set values
-# ─────────────────────────────────────────────────────────────────────────────
-def set_gp_value(doc,
-                 name: str,
-                 value: Any,
-                 ptype: Any = getattr(DB, "ParameterType", object) and DB.ParameterType.Text,
-                 group: Any = DB.BuiltInParameterGroup.PG_DATA) -> DB.GlobalParameter:
-    """Ensure a GP then set its value. Returns the GP element. (Requires active Transaction)."""
-    gp, _ = ensure_gp(doc, name, ptype, group)
-    try:
-        DB.GlobalParametersManager.SetValue(doc, gp.Id, _mk_value_container(value))
-    except Exception:
-        try:
-            gp.SetValue(_mk_value_container(value))
-        except Exception:
-            pass
+def set_gp_value(doc: DB.Document, name: str, value: Any, ptype: Any = None,
+                 group: DB.BuiltInParameterGroup = DB.BuiltInParameterGroup.PG_DATA
+                 ) -> DB.GlobalParameter:
+    """Create (if needed) and set a Global Parameter value."""
+    spec = _coerce_spec(ptype if ptype is not None else _spec_text())
+    gp, _ = ensure_gp(doc, name, spec, group)
+    pv = _make_value(spec, value)
+    gp.SetValue(pv)
     return gp
 
-
-def set_gp_value_unit(doc, name: str, unit_tag: str, value: Any) -> DB.GlobalParameter:
-    """
-    Convenience setter that handles simple unit tags:
-      unit_tag in {"bool","mm","deg","text"}.
-    - "mm": caller provides mm; GP stores internal feet
-    - "deg": caller provides degrees; GP stores radians
-    """
-    ut = (unit_tag or "").lower()
-    if ut == "bool":
-        return set_gp_value(doc, name, bool(value), DB.ParameterType.YesNo, DB.BuiltInParameterGroup.PG_DATA)
-    if ut == "mm":
-        return set_gp_value(doc, name, float(mm_to_ft(float(value))), DB.ParameterType.Length, DB.BuiltInParameterGroup.PG_DATA)
-    if ut == "deg":
-        return set_gp_value(doc, name, float(deg_to_rad(float(value))), DB.ParameterType.Angle, DB.BuiltInParameterGroup.PG_DATA)
-    # text/default
-    return set_gp_value(doc, name, "" if value is None else str(value), DB.ParameterType.Text, DB.BuiltInParameterGroup.PG_DATA)
-
-
-def get_gp_value(doc, name: str, default: Any = None) -> Any:
-    """Return the raw stored value (int/double/string/ElementId) or default if missing."""
-    gp = _find_gp_internal(doc, name)
-    if not gp:
-        return default
-    try:
-        pv = DB.GlobalParametersManager.GetValue(doc, gp.Id)
-    except Exception:
+# ------------------------------------------------------------
+# Convenience setter with unit tags (text/yesno/length/angle)
+# ------------------------------------------------------------
+def set_gp_value_unit(doc: DB.Document, name: str, unit_tag: str, value: Any
+                      ) -> DB.GlobalParameter:
+    tag = (unit_tag or "").strip().lower()
+    if tag in ("bool", "yesno", "boolean"):
+        return set_gp_value(doc, name, bool(value), _spec_yesno())
+    if tag in ("mm", "millimeter", "millimetre"):
+        # Convert mm → ft if units helper is present
         try:
-            pv = gp.GetValue()
+            from ada_core.units import mm_to_ft  # type: ignore
+            val = float(mm_to_ft(float(value)))
         except Exception:
-            return default
-    # Extract value
-    try:
-        if hasattr(pv, "Value"):
-            return pv.Value
-        if hasattr(pv, "AsString"):
-            return pv.AsString()
-    except Exception:
-        pass
-    return default
-
-
-def get_gp_value_typed(doc, name: str) -> Tuple[str, Any]:
-    """
-    Returns (unit_tag, value) with a light inference:
-      - ("bool", 0/1) for IntegerParameterValue when value in {0,1}
-      - ("int",  int) for other integer values
-      - ("mm", float) for DoubleParameterValue (assumed length; value in mm)
-      - ("text", str) for StringParameterValue
-      - ("eid", ElementId) otherwise
-    """
-    gp = _find_gp_internal(doc, name)
-    if not gp:
-        return ("text", None)
-    try:
-        pv = DB.GlobalParametersManager.GetValue(doc, gp.Id)
-    except Exception:
+            val = float(value)
+        return set_gp_value(doc, name, val, _spec_length())
+    if tag in ("deg", "degree", "degrees"):
         try:
-            pv = gp.GetValue()
+            from ada_core.units import deg_to_rad  # type: ignore
+            val = float(deg_to_rad(float(value)))
         except Exception:
-            return ("text", None)
+            val = float(value)
+        return set_gp_value(doc, name, val, _spec_angle())
+    if tag in ("num", "number"):
+        return set_gp_value(doc, name, float(value), _spec_number())
 
-    tname = type(pv).__name__
-    if tname == "IntegerParameterValue":
-        try:
-            v = pv.Value
-            if v in (0, 1):
-                return ("bool", v)
-            return ("int", v)
-        except Exception:
-            return ("int", None)
-    if tname == "DoubleParameterValue":
-        try:
-            return ("mm", ft_to_mm(float(pv.Value)))  # display as mm
-        except Exception:
-            return ("num", None)
-    if tname == "StringParameterValue":
-        try:
-            return ("text", pv.Value or "")
-        except Exception:
-            return ("text", None)
-    if tname == "ElementIdParameterValue":
-        try:
-            return ("eid", pv.Value)
-        except Exception:
-            return ("eid", None)
-    return ("text", None)
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Mapping / discovery
-# ─────────────────────────────────────────────────────────────────────────────
-def map_global_parameters_by_name(doc) -> Dict[str, DB.GlobalParameter]:
-    """Build a name → GlobalParameter map."""
-    m = {}
-    try:
-        for gp in DB.FilteredElementCollector(doc).OfClass(DB.GlobalParameter):
-            m[getattr(gp, "Name", "")] = gp
-    except Exception:
-        pass
-    return m
-
-
-def collect_gps_with_prefix(doc, prefix: str) -> List[DB.GlobalParameter]:
-    """Return all GPs whose names start with `prefix`."""
-    res = []
-    try:
-        for gp in DB.FilteredElementCollector(doc).OfClass(DB.GlobalParameter):
-            nm = getattr(gp, "Name", "") or ""
-            if nm.startswith(prefix):
-                res.append(gp)
-    except Exception:
-        pass
-    return res
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Association detection / removal
-# ─────────────────────────────────────────────────────────────────────────────
-def detect_global_parameter_associations(elements: List, doc) -> List[Dict[str, Any]]:
-    """
-    Detect GP associations for a list of elements.
-    Returns a list of dicts: {elem, param, gp_id, method, gp_name}
-    """
-    try:
-        from ada_core.params import get_element_id_value  # optional
-    except Exception:
-        def get_element_id_value(element_id):
-            try:
-                if hasattr(element_id, 'IntegerValue'):
-                    return element_id.IntegerValue
-                elif hasattr(element_id, 'Value'):
-                    return element_id.Value
-                else:
-                    return int(str(element_id))
-            except Exception:
-                return str(element_id)
-
-    gp_map = map_global_parameters_by_name(doc)
-    found = []
-    for el in elements or []:
-        try:
-            for p in el.Parameters:
-                pname = p.Definition.Name
-                # Primary: API association
-                gid = None
-                try:
-                    if hasattr(p, "GetAssociatedGlobalParameter"):
-                        tmp = p.GetAssociatedGlobalParameter()
-                        if isinstance(tmp, DB.ElementId) and get_element_id_value(tmp) != -1:
-                            gid = tmp
-                except Exception:
-                    gid = None
-                if gid:
-                    gp_elem = doc.GetElement(gid)
-                    gname = getattr(gp_elem, "Name", None)
-                    found.append({"elem": el, "param": p, "gp_id": gid, "method": "Associated", "gp_name": gname})
-                    continue
-                # Secondary: name match (param name == GP name)
-                if pname in gp_map:
-                    found.append({"elem": el, "param": p, "gp_id": gp_map[pname].Id, "method": "NameMatch", "gp_name": pname})
-        except Exception:
-            continue
-    return found
-
-
-def dissociate_global_parameter_safely(entry: Dict[str, Any], doc) -> Tuple[bool, str]:
-    """
-    Safely dissociate a GP from a parameter while preserving the current parameter value.
-    `entry` is an item from detect_global_parameter_associations().
-    """
-    try:
-        from ada_core.params import read_parameter_typed, write_parameter_typed, get_parameter_element_id  # optional
-    except Exception:
-        def read_parameter_typed(param, DB=None):
-            try:
-                st = getattr(param, "StorageType", None)
-                if str(st) == "Double":    return ("double", param.AsDouble())
-                if str(st) == "Integer":   return ("int",    param.AsInteger())
-                if str(st) == "String":    return ("str",    param.AsString())
-                if str(st) == "ElementId": return ("id",     param.AsElementId())
-            except Exception:
-                pass
-            return (None, None)
-        def write_parameter_typed(param, value_info):
-            try:
-                vt, v = value_info
-                return param.Set(v) if vt is not None else False
-            except Exception:
-                return False
-        def get_parameter_element_id(param, DB=None):
-            try:
-                return getattr(param, "Id", None)
-            except Exception:
-                return None
-
-    el = entry["elem"]; p = entry["param"]
-    value_info = read_parameter_typed(p)
-
-    pid = get_parameter_element_id(p)
-    if pid:
-        try:
-            DB.GlobalParametersManager.DissociateGlobalParameter(doc, el.Id, pid)
-            if not getattr(p, "IsReadOnly", True) and value_info[0] is not None:
-                write_parameter_typed(p, value_info)
-            return True, "GlobalParametersManager"
-        except Exception:
-            pass
-
-    try:
-        if hasattr(p, "DissociateFromGlobalParameter"):
-            p.DissociateFromGlobalParameter()
-            if not getattr(p, "IsReadOnly", True) and value_info[0] is not None:
-                write_parameter_typed(p, value_info)
-            return True, "ParameterAPI"
-    except Exception:
-        pass
-    return False, "Failed"
-
-
-def bulk_dissociate_global_parameters(associations: List[Dict[str, Any]], doc) -> Tuple[int, int]:
-    """Bulk-dissociate GP associations; returns (removed, failed)."""
-    removed, failed = 0, 0
-    tg = DB.TransactionGroup(doc, "Bulk Remove Global Parameter Associations")
-    tg.Start()
-    for entry in associations:
-        t = None
-        try:
-            pname = entry["param"].Definition.Name
-            t = DB.Transaction(doc, "Dissociate: " + pname); t.Start()
-            ok, _m = dissociate_global_parameter_safely(entry, doc)
-            if ok:
-                t.Commit(); removed += 1
-            else:
-                if t and t.GetStatus() == DB.TransactionStatus.Started: t.RollBack()
-                failed += 1
-        except Exception:
-            try:
-                if t and t.GetStatus() == DB.TransactionStatus.Started: t.RollBack()
-            except Exception:
-                pass
-            failed += 1
-    try:
-        tg.Assimilate()
-    except Exception:
-        tg.RollBack(); return 0, len(associations)
-    return removed, failed
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Safe association helper (additive)
-# ─────────────────────────────────────────────────────────────────────────────
-def associate_params_safe(elements, inst_to_gp_map: Dict[str, str], gp_ids: Dict[str, DB.ElementId]) -> Tuple[int, List[str]]:
-    """
-    Associate instance parameters to GPs by name.
-    inst_to_gp_map: {"Instance Param Name": "Global Parameter Name"}
-    gp_ids:         {"Global Parameter Name": ElementId}
-    Returns (total_associated, logs)
-    """
-    n = 0; logs = []
-    for inst_name, gp_name in (inst_to_gp_map or {}).items():
-        gid = gp_ids.get(gp_name)
-        if not gid:
-            logs.append("Missing GP: {}".format(gp_name)); continue
-        count = 0
-        for el in elements or []:
-            try:
-                p = el.LookupParameter(inst_name)
-                if p and p.CanBeAssociatedWithGlobalParameter(gid):
-                    p.AssociateWithGlobalParameter(gid); n += 1; count += 1
-            except Exception as e:
-                logs.append("Failed {} on {}: {}".format(inst_name, el.Id, e))
-        if count:
-            logs.append("Associated '{}' → '{}' on {} elements".format(inst_name, gp_name, count))
-    return n, logs
+    # default to text
+    return set_gp_value(doc, name, "" if value is None else str(value), _spec_text())
