@@ -206,3 +206,10 @@ def set_gp_value_unit(doc: DB.Document, name: str, unit_tag: str, value: Any
 
     # default to text
     return set_gp_value(doc, name, "" if value is None else str(value), _spec_text())
+
+# ------------------------------------------------------------
+# Backward-compatibility alias
+# ------------------------------------------------------------
+def find_gp(doc: DB.Document, name: str) -> Optional[DB.GlobalParameter]:
+    """Legacy alias for older scripts. Calls _find_gp under the hood."""
+    return _find_gp(doc, name)
