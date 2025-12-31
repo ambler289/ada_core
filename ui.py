@@ -23,8 +23,6 @@ try:
 except Exception:
     BB = None
 
-
-
 # --- internal: try to make ada_brandforms_v6 importable if ADA_UI_DIR is given
 def _ensure_ada_ui_path():
     hint = os.getenv("ADA_UI_DIR")
@@ -32,7 +30,6 @@ def _ensure_ada_ui_path():
         sys.path.insert(0, hint)
 
 _ensure_ada_ui_path()
-
 
 # --- backend discovery --------------------------------------------------------
 def _backend():
@@ -142,7 +139,6 @@ def _backend():
                 if not SFL:
                     return None
                 if name_attr:
-                    # build list of display items with attr
                     data = [SFL.listitem(getattr(it, name_attr, str(it)), it) for it in items]
                 else:
                     data = [SFL.listitem(str(it), it) for it in items]
@@ -156,8 +152,18 @@ def _backend():
                 return sel if isinstance(sel, (str,)) else getattr(sel, "value", sel)
 
         return PyR
-    except Exception:
+
+    except Exception as e:
+        # DEBUG: show why pyrevit.forms backend failed instead of silently falling back
+        try:
+            import traceback
+            print("[ADa UI] pyrevit.forms backend failed:", repr(e))
+            print(traceback.format_exc())
+        except Exception:
+            pass
+        # keep falling back after printing
         pass
+
 
     # 4) console fallback
     class Console(object):
