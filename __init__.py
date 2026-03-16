@@ -9,7 +9,8 @@ from typing import Dict
 
 __all__ = [
     "selection","ui","units","views","collect","gp","params",
-    "geom","naming","config","log","errors","deps","viewsheets"
+    "geom","naming","config","log","errors","deps","viewsheets",
+    "revit_compat"
 ]
 
 _cache: Dict[str, ModuleType] = {}
